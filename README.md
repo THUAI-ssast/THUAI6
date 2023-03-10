@@ -83,6 +83,10 @@ End(["结束"])
 
 若必要（虽然估算了文件大小是完全可接受的），也可压缩后存储。
 
+### SDK
+
+[SDK文档](docs/SDK文档.md)
+
 ## 开发管理
 
 时间很紧，需要尽快完成。
@@ -91,6 +95,8 @@ End(["结束"])
 例会主要内容：分享自己这周完成了什么、接下来做什么、有什么需要讨论/帮助的地方。
 
 通过 GitHub 进行项目管理。开发时，每个人在自己的分支上进行开发，开发完成后发起合并到主分支的 Pull Request。Pull Request 最好经过他人 ReView 后再合并。
+
+[C# 编码约定 | Microsoft Learn](https://learn.microsoft.com/zh-cn/dotnet/csharp/fundamentals/coding-style/coding-conventions)
 
 ## 一些实现方案
 
@@ -108,10 +114,15 @@ gantt
 title 项目进度
 dateFormat M/D
 axisFormat %m/%d
-section 开发前
+section 基本工作
     游戏设计: done, 2/26, 3/3
     设计架构: done, 3/2, 3/3
-    入门CSharp与Unity: active, 3/3, 3d
-section 初赛前的开发
-    整体结构: 3/3, 2d
+    入门CSharp与Unity: active, 3/3, 7d
+    整体结构: done, 3/6, 3/10
+section UI
+section 游戏逻辑
+section 接入AI
+section 录制与回放
+section 部署
+section SDK
 ```
