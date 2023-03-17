@@ -14,6 +14,7 @@ using System.IO;
 
 [Serializable]
 public class SendDataType {
+    public int frameNo;
     public int posX;
     public int posY;
     public string msg;
@@ -21,17 +22,17 @@ public class SendDataType {
 
 [Serializable]
 public class ReceiveDataType {
+    public int frameNo;
     public int action;
     public string msg;
 }
 
 public class AiPlayer : MonoBehaviour
 {
-    // TODO: add frame count in protocol for sync
     // TODO: reaction time
     public float reactionTime = 0.2f; // seconds
     public const int portNumber = 11111;
-    public Func<ReceiveDataType> onReceive = null; // callback function
+    public Func<ReceiveDataType, bool> onReceive = null;
     private Socket clientSocket = null;
     private byte[] recvBuffer = new byte[1024];
 
@@ -58,8 +59,9 @@ public class AiPlayer : MonoBehaviour
         }
     }
 
-    // Should be called once per frame
+    // Should be called once at the beginning of each frame
     public void SendState(SendDataType data) {
+        data.frameNo = Time.frameCount;
         string sendStr = JsonUtility.ToJson(data);
         byte[] sendBuffer = Encoding.ASCII.GetBytes(sendStr);
         clientSocket.SendAsync(sendBuffer, SocketFlags.None);
@@ -87,7 +89,21 @@ public class AiPlayer : MonoBehaviour
             Debug.Assert(recv > 0);
 
             string recvStr = Encoding.ASCII.GetString(recvBuffer, 0, recv);
-            ReceiveDataType recvData = JsonUtility.FromJson<ReceiveDataType>(recvStr);
+            try {
+                ReceiveDataType recvData = JsonUtility.FromJson<ReceiveDataType>(recvStr);
+                if (recvData.frameNo != Time.frameCount - 1) {
+                    Debug.Log("FrameNo = " + Time.frameCount);
+                    Debug.Log("RecvFrameNo = " + recvData.frameNo);
+                    Debug.Log("Response received in wrong frame");
+                    return;
+                }
+                if (onReceive != null)
+                    onReceive(recvData);
+            } catch {
+                Debug.Log("FrameNo = " + Time.frameCount);
+                Debug.Log("Multiple response received in one frame");
+                return;
+            }
         } catch (Exception e) {
             Debug.Log(e.ToString());
         }

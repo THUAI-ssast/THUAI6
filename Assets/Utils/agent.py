@@ -16,7 +16,8 @@ while True:
     if data["msg"] == "close":
         break
 
-    response = agent(**data)
+    response = agent(data["posX"], data["posY"], data["msg"])
+    response["frameNo"] = data["frameNo"]
     s.sendall(json.dumps(response).encode("utf-8"))
 
 
