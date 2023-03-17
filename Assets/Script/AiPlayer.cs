@@ -7,16 +7,30 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Xml;
+using System.IO;
 
 // call AI to decide next action
 // TODO: to be implemented
+
+[Serializable]
+public class SendDataType {
+    public int field1;
+    public string field2;
+}
+
+[Serializable]
+public class ReceiveDataType {
+    public int action;
+    public string msg;
+}
 
 public class AiPlayer : MonoBehaviour
 {
     // TODO: to be decided
     // original reaction time
     public float reactionTime = 0.2f; // seconds
-    private const int portNumber = 11111;
+    public const int portNumber = 11111;
     private Socket clientSocket = null;
     private byte[] recvBuffer = new byte[1024];
 
@@ -54,9 +68,16 @@ public class AiPlayer : MonoBehaviour
             return;
 
         string recvStr = Encoding.ASCII.GetString(recvBuffer, 0, recv);
-        Debug.Log("Received: " + recvStr);
+        ReceiveDataType recvData = JsonUtility.FromJson<ReceiveDataType>(recvStr);
 
-        string sendStr = "Hello";
+        Debug.Log("Received: " + recvStr);
+        Debug.Log("Action: " + recvData.action);
+        Debug.Log("Msg: " + recvData.msg);
+
+        SendDataType sendData = new SendDataType();
+        sendData.field1 = 1;
+        sendData.field2 = "Hello";
+        string sendStr = JsonUtility.ToJson(sendData);
         byte[] sendBuffer = Encoding.ASCII.GetBytes(sendStr);
         await clientSocket.SendAsync(sendBuffer, SocketFlags.None);
     }
