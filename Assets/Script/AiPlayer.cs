@@ -11,12 +11,12 @@ using System.Xml;
 using System.IO;
 
 // call AI to decide next action
-// TODO: to be implemented
 
 [Serializable]
 public class SendDataType {
-    public int field1;
-    public string field2;
+    public int posX;
+    public int posY;
+    public string msg;
 }
 
 [Serializable]
@@ -27,10 +27,11 @@ public class ReceiveDataType {
 
 public class AiPlayer : MonoBehaviour
 {
-    // TODO: to be decided
-    // original reaction time
+    // TODO: add frame count in protocol for sync
+    // TODO: reaction time
     public float reactionTime = 0.2f; // seconds
     public const int portNumber = 11111;
+    public Func<ReceiveDataType> onReceive = null; // callback function
     private Socket clientSocket = null;
     private byte[] recvBuffer = new byte[1024];
 
@@ -57,28 +58,38 @@ public class AiPlayer : MonoBehaviour
         }
     }
 
+    // Should be called once per frame
+    public void SendState(SendDataType data) {
+        string sendStr = JsonUtility.ToJson(data);
+        byte[] sendBuffer = Encoding.ASCII.GetBytes(sendStr);
+        clientSocket.SendAsync(sendBuffer, SocketFlags.None);
+    }
+
     // Update is called once per frame
     async void Update()
     {
         if (clientSocket == null || !clientSocket.Connected)
             return;
 
-        int recv = await clientSocket.ReceiveAsync(recvBuffer, SocketFlags.None);
-        if (recv == 0)
+        // FOR DEBUG
+        SendDataType sendData = new SendDataType();
+        sendData.posX = 1;
+        sendData.posY = 2;
+        sendData.msg = "Hello";
+        SendState(sendData);
+
+        // Peak receive buffer for agent response of last frame
+        if (clientSocket.Available == 0)
             return;
 
-        string recvStr = Encoding.ASCII.GetString(recvBuffer, 0, recv);
-        ReceiveDataType recvData = JsonUtility.FromJson<ReceiveDataType>(recvStr);
+        try {
+            int recv = await clientSocket.ReceiveAsync(recvBuffer, SocketFlags.None);
+            Debug.Assert(recv > 0);
 
-        Debug.Log("Received: " + recvStr);
-        Debug.Log("Action: " + recvData.action);
-        Debug.Log("Msg: " + recvData.msg);
-
-        SendDataType sendData = new SendDataType();
-        sendData.field1 = 1;
-        sendData.field2 = "Hello";
-        string sendStr = JsonUtility.ToJson(sendData);
-        byte[] sendBuffer = Encoding.ASCII.GetBytes(sendStr);
-        await clientSocket.SendAsync(sendBuffer, SocketFlags.None);
+            string recvStr = Encoding.ASCII.GetString(recvBuffer, 0, recv);
+            ReceiveDataType recvData = JsonUtility.FromJson<ReceiveDataType>(recvStr);
+        } catch (Exception e) {
+            Debug.Log(e.ToString());
+        }
     }
 }
