@@ -35,7 +35,7 @@ public struct PlayerState {
 
 public struct BlockState
 {
-    bool isObstacle;
+    public bool isObstacle;
     Portal portal;
     Bomb bomb;
 }
