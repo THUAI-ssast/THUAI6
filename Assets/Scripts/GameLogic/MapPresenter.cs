@@ -67,8 +67,12 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public void SetBombPosition(BombModel bomb, Vector2Int target)
     {
+        model.RemoveBomb(bomb);
         bomb.position = target;
         // TODO: update map model
+        model.PlaceBomb(bomb);
+
+        
     }
 
     /// <summary>

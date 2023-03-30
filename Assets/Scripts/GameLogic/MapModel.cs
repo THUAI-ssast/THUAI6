@@ -36,7 +36,69 @@ public class MapModel : Singleton<MapModel>
     {
         // TODO: to be implemented.
         // initialize map
-
+        int[,] initialMap = new int[,]
+        {
+{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0},
+{0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0},
+{1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1},
+{0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
+{0,0,0,0,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0},
+{0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0},
+{0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,1,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+{0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1,1,0,1,1,0,0},
+{0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1},
+{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0},
+{0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+{1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+{0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
+{0,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
+{0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+{0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0},
+{0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0},
+{0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
+{0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0}
+        };
+        for (int i = 0; i < map.GetLength(0); i++)
+        {
+            for (int j = 0; j < map.GetLength(1); j++)
+            {
+                if (initialMap[i, j] == 1)
+                {
+                    this.map[i, j].isObstacle = true;
+                }
+            }
+        }
         // initialize players(model only)
         // get TeamCount, PlayerCount from GameModel.Instance
     }
@@ -45,7 +107,13 @@ public class MapModel : Singleton<MapModel>
     public Vector2Int GetRandomPosition()
     {
         // TODO: to be implemented
-        return new Vector2Int(0, 0);
+        int x = UnityEngine.Random.Range(0, map.GetLength(0));
+        int y = UnityEngine.Random.Range(0, map.GetLength(1));
+        if (map[x, y].isObstacle)
+        {
+            return GetRandomPosition(); // recursive call
+        }
+        return new Vector2Int(x, y);
     }
 
     public void PlaceBomb(BombModel bomb)
@@ -68,6 +136,42 @@ public class MapModel : Singleton<MapModel>
         // add the line for all related portals, by calling AddLine function for all related Portal
         // update portalClassifiedByPattern
 
+        map[cellPosition.x, cellPosition.y].portal.AddLine(line);
+        if (line == LineInPortalPattern.LeftDown)
+        {
+            map[cellPosition.x - 1, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.RightUp);
+            map[cellPosition.x - 1, cellPosition.y].portal.AddLine(LineInPortalPattern.RightDown);
+            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
+        }
+        // else if (line == LineInPortalPattern.LeftUp)
+        // {
+        //     map[cellPosition.x - 1, cellPosition.y + 1].portal.AddLine(LineInPortalPattern.RightDown);
+        //     map[cellPosition.x - 1, cellPosition.y].portal.AddLine(LineInPortalPattern.RightUp);
+        //     portalsModified.Add(map[cellPosition.x - 1, cellPosition.y + 1].portal);
+        //     portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
+        // }
+        else if (line == LineInPortalPattern.RightDown)
+        {
+            map[cellPosition.x + 1, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.LeftUp);
+            map[cellPosition.x + 1, cellPosition.y].portal.AddLine(LineInPortalPattern.LeftDown);
+            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y].portal);
+        }
+        else if (line == LineInPortalPattern.Center)
+        {
+            map[cellPosition.x, cellPosition.y + 1].portal.AddLine(LineInPortalPattern.Down);
+            map[cellPosition.x, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.Up);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y + 1].portal);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
+        }
+        else if (line == LineInPortalPattern.Down)
+        {
+            map[cellPosition.x, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.Center);
+            map[cellPosition.x, cellPosition.y - 2].portal.AddLine(LineInPortalPattern.Up);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 2].portal);
+        }
 
         PortalLineModifiedEvent?.Invoke(this, portalsModified);
     }
@@ -77,6 +181,35 @@ public class MapModel : Singleton<MapModel>
         // TODO: similar to AddLine
         List<PortalModel> portalsModified = new List<PortalModel>();
 
+        map[cellPosition.x, cellPosition.y].portal.RemoveLine(line);
+        if (line == LineInPortalPattern.LeftDown)
+        {
+            map[cellPosition.x - 1, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.RightUp);
+            map[cellPosition.x - 1, cellPosition.y].portal.RemoveLine(LineInPortalPattern.RightDown);
+            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
+        }
+        else if (line == LineInPortalPattern.RightDown)
+        {
+            map[cellPosition.x + 1, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.LeftUp);
+            map[cellPosition.x + 1, cellPosition.y].portal.RemoveLine(LineInPortalPattern.LeftDown);
+            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y].portal);
+        }
+        else if (line == LineInPortalPattern.Center)
+        {
+            map[cellPosition.x, cellPosition.y + 1].portal.RemoveLine(LineInPortalPattern.Down);
+            map[cellPosition.x, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.Up);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y + 1].portal);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
+        }else if (line == LineInPortalPattern.Down)
+        {
+            map[cellPosition.x, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.Center);
+            map[cellPosition.x, cellPosition.y - 2].portal.RemoveLine(LineInPortalPattern.Up);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
+            portalsModified.Add(map[cellPosition.x, cellPosition.y - 2].portal);
+        }
+        
         PortalLineModifiedEvent?.Invoke(this, portalsModified);
     }
 
