@@ -44,7 +44,7 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
         this.model = model;
 
         transform.position = new Vector3(model.position.x, model.position.y, 0);
-        transform.rotation = model.rotation;
+        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
 
         // TODO: set the view based on the model, e.g. set the color of the player based on its Team
 
@@ -52,8 +52,11 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
 
     void FixedUpdate()
     {
+        // Preserve the model is consistent with the game object
         model.position = transform.position;
-        model.rotation = transform.rotation;
+        // model.rotation is float, transform.rotation is Quaternion
+        model.rotation = transform.rotation.eulerAngles.z;
+        // Update time left
         if (!model.state.isAlive)
         {
             model.respawnTimeLeft -= Time.fixedDeltaTime;
@@ -69,7 +72,7 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
 
     // 1. Check if the player can perform the action
     // 2. If yes, invoke the related events and perform the action
-    // The following `TryMove` method is an example.
+    // 3. Game object and model are both updated
 
     // return true if the action is performed successfully, false otherwise
     public bool TryMove(ForwardOrBackward direction)
@@ -85,23 +88,32 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
 
         // Make the game object move
         Vector3 directionVector = model.rotation * Vector3.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
-        float MaxVelocity = PlayerModel.MaxVelocity;
+        const float MaxVelocity = PlayerModel.MaxVelocity;
         if (_rigidbody.velocity.magnitude > MaxVelocity)
         {
             _rigidbody.velocity = _rigidbody.velocity.normalized * MaxVelocity;
         }
         _rigidbody.AddForce(directionVector * PlayerModel.Acceleration, ForceMode.Acceleration);
-    }
 
-    // TODO
+        // Model is updated in FixedUpdate
+    }
 
     public bool TryRotate(LeftOrRight direction)
     {
+        if (!model.state.canRotate) return false;
+        Rotate(direction);
         return true;
     }
 
     public void Rotate(LeftOrRight direction)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new RotateAction(direction) });
+
+        // Make the game object rotate
+        float angle = PlayerModel.RotationSpeed * Time.fixedDeltaTime * (direction == LeftOrRight.Left ? 1 : -1);
+        transform.Rotate(0, 0, angle);
+
+        // Model is updated in FixedUpdate
     }
 
     public bool TryShoot()

@@ -56,9 +56,11 @@ public class PlayerModel
 {
     // const properties that same for all players
     // TODO: to be decided
-    public const float RespawnTime = 5.0f; // seconds
-    public const float Speed = 1.0f; // per second
-    public const float RotationSpeed = 600.0f; // degree per second
+    // unit: meter, second, degree
+    public const float MaxVelocity = 4.0f;
+    public const float Acceleration = 10.0f;
+    public const float RotationSpeed = 600.0f;
+
     public const int MaxHp = 100;
     public const int MaxAmmo = 30;
     public const int GunDamage = 10;
@@ -77,10 +79,10 @@ public class PlayerModel
     public PlayerState state { get; private set; } = new PlayerState();
     public int hp = MaxHp;
     public int ammo = MaxAmmo;
-    public float respawnTimeLeft = 0.0f; // seconds. 0 means not respawning
     public Vector2 position;
-    // TODO: to be decided. Quaternion may be not a good choice?
-    public Quaternion rotation = Quaternion.identity;
+    public float rotation = 0.0f; // degree
+
+    public float respawnTimeLeft = 0.0f; // seconds. 0 means not respawning
 
     public PlayerModel(int id, Team team, Vector2 position)
     {
