@@ -1,0 +1,76 @@
+{
+    "type": "object",
+    "properties": {
+        "render": {
+            "type": "boolean",
+            "default": true
+        },
+        "data": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "properties": {
+                        "replayPath": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "replayPath"
+                    ],
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "players": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "human"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "ai"
+                                                ]
+                                            },
+                                            "path": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "type",
+                                            "path"
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "players"
+                    ],
+                    "additionalProperties": false
+                }
+            ]
+        }
+    },
+    "required": [
+        "data"
+    ]
+}
