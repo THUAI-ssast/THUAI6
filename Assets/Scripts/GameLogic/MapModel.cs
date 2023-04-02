@@ -100,7 +100,13 @@ public class MapModel : Singleton<MapModel>
             }
         }
         // initialize players(model only)
-        // get TeamCount, PlayerCount from GameModel.Instance
+        const int teamCount = GameModel.TeamCount;
+        const int playerCountEachTeam = GameModel.PlayerCountEachTeam;
+        const int playerCount = teamCount * playerCountEachTeam;
+        for (int i = 0; i < playerCount; i++)
+        {
+            players.Add(new PlayerModel(i, (Team)(i / playerCountEachTeam), GetRandomPosition()));
+        }
     }
 
     // return a random position that is not an obstacle
