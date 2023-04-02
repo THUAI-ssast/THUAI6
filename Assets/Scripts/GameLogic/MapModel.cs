@@ -112,14 +112,15 @@ public class MapModel : Singleton<MapModel>
     // return a random position that is not an obstacle
     public Vector2Int GetRandomPosition()
     {
-        // TODO: to be implemented
-        int x = UnityEngine.Random.Range(0, map.GetLength(0));
-        int y = UnityEngine.Random.Range(0, map.GetLength(1));
-        if (map[x, y].isObstacle)
+        do
         {
-            return GetRandomPosition(); // recursive call
-        }
-        return new Vector2Int(x, y);
+            int x = UnityEngine.Random.Range(0, map.GetLength(0));
+            int y = UnityEngine.Random.Range(0, map.GetLength(1));
+            if (!map[x, y].isObstacle)
+            {
+                return new Vector2Int(x, y);
+            }
+        } while (true);
     }
 
     public void PlaceBomb(BombModel bomb)
