@@ -1,8 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MapView))]
 public class MapPresenter : MonoSingleton<MapPresenter>
 {
     [SerializeField]
@@ -69,10 +68,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     {
         model.RemoveBomb(bomb);
         bomb.position = target;
-        // TODO: update map model
-        model.PlaceBomb(bomb);
-
-        
+        model.PlaceBomb(bomb);        
     }
 
     /// <summary>

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,7 +5,6 @@ using UnityEngine.Tilemaps;
 using PortalPattern = System.UInt32;
 public class MapView : MonoBehaviour
 {
-    // TODO
     public Tilemap tileMap;
     public TileBase roadTile;
     public TileBase obstacleTile;
@@ -39,7 +37,6 @@ public class MapView : MonoBehaviour
         }
     }
 
-    // TODO
     public void UpdatePortal(PortalModel portal)
     {
         int i = portal.position.x;

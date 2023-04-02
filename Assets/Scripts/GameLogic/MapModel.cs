@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,7 +33,6 @@ public class MapModel : Singleton<MapModel>
 
     public MapModel()
     {
-        // TODO: to be implemented.
         // initialize map
         int[,] initialMap = new int[,]
         {
