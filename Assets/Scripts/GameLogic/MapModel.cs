@@ -135,86 +135,107 @@ public class MapModel : Singleton<MapModel>
         map[bomb.position.x, bomb.position.y].bombs.Remove(bomb);
     }
 
-    // TODO: to be implemented
-
-    public void AddLine(Vector2Int cellPosition, LineInPortalPattern line)
+    public void AddLine(Vector2Int cellPosition, Direction direction)
     {
         List<PortalModel> portalsModified = new List<PortalModel>();
-        // add the line for all related portals, by calling AddLine function for all related Portal
-        // update portalClassifiedByPattern
 
-        map[cellPosition.x, cellPosition.y].portal.AddLine(line);
-        if (line == LineInPortalPattern.LeftDown)
+        Action<PortalModel, LineInPortalPattern> AddLineForPortal = (portal, line) =>
         {
-            map[cellPosition.x - 1, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.RightUp);
-            map[cellPosition.x - 1, cellPosition.y].portal.AddLine(LineInPortalPattern.RightDown);
-            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
-        }
-        // else if (line == LineInPortalPattern.LeftUp)
-        // {
-        //     map[cellPosition.x - 1, cellPosition.y + 1].portal.AddLine(LineInPortalPattern.RightDown);
-        //     map[cellPosition.x - 1, cellPosition.y].portal.AddLine(LineInPortalPattern.RightUp);
-        //     portalsModified.Add(map[cellPosition.x - 1, cellPosition.y + 1].portal);
-        //     portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
-        // }
-        else if (line == LineInPortalPattern.RightDown)
+            portalsClassifiedByPattern[portal.pattern].Remove(portal);
+            portal.AddLine(line);
+            portalsClassifiedByPattern[portal.pattern].Add(portal);
+            portalsModified.Add(portal);
+        };
+
+        // add the line for all related portals
+        AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
+        switch (direction)
         {
-            map[cellPosition.x + 1, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.LeftUp);
-            map[cellPosition.x + 1, cellPosition.y].portal.AddLine(LineInPortalPattern.LeftDown);
-            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y].portal);
-        }
-        else if (line == LineInPortalPattern.Center)
-        {
-            map[cellPosition.x, cellPosition.y + 1].portal.AddLine(LineInPortalPattern.Down);
-            map[cellPosition.x, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.Up);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y + 1].portal);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
-        }
-        else if (line == LineInPortalPattern.Down)
-        {
-            map[cellPosition.x, cellPosition.y - 1].portal.AddLine(LineInPortalPattern.Center);
-            map[cellPosition.x, cellPosition.y - 2].portal.AddLine(LineInPortalPattern.Up);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 2].portal);
+            case Direction.Up:
+                int currentX = cellPosition.x;
+                int currentY = cellPosition.y + 1;
+                if (currentY < map.GetLength(1) && map[currentX, currentY].portal != null)
+                {
+                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
+                }
+                break;
+            case Direction.Down:
+                currentX = cellPosition.x;
+                currentY = cellPosition.y - 1;
+                if (currentY >= 0 && map[currentX, currentY].portal != null)
+                {
+                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
+                }
+                break;
+            case Direction.Left:
+                currentX = cellPosition.x - 1;
+                currentY = cellPosition.y;
+                if (currentX >= 0 && map[currentX, currentY].portal != null)
+                {
+                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
+                }
+                break;
+            case Direction.Right:
+                currentX = cellPosition.x + 1;
+                currentY = cellPosition.y;
+                if (currentX < map.GetLength(0) && map[currentX, currentY].portal != null)
+                {
+                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
+                }
+                break;
         }
 
         PortalLineModifiedEvent?.Invoke(this, portalsModified);
     }
 
-    public void RemoveLine(Vector2Int cellPosition, LineInPortalPattern line)
+    public void RemoveLine(Vector2Int cellPosition, Direction direction)
     {
-        // TODO: similar to AddLine
         List<PortalModel> portalsModified = new List<PortalModel>();
 
-        map[cellPosition.x, cellPosition.y].portal.RemoveLine(line);
-        if (line == LineInPortalPattern.LeftDown)
+        Action<PortalModel, LineInPortalPattern> RemoveLineForPortal = (portal, line) =>
         {
-            map[cellPosition.x - 1, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.RightUp);
-            map[cellPosition.x - 1, cellPosition.y].portal.RemoveLine(LineInPortalPattern.RightDown);
-            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x - 1, cellPosition.y].portal);
-        }
-        else if (line == LineInPortalPattern.RightDown)
+            portalsClassifiedByPattern[portal.pattern].Remove(portal);
+            portal.RemoveLine(line);
+            portalsClassifiedByPattern[portal.pattern].Add(portal);
+            portalsModified.Add(portal);
+        };
+        
+        // remove the line for all related portals
+        RemoveLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
+        switch (direction)
         {
-            map[cellPosition.x + 1, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.LeftUp);
-            map[cellPosition.x + 1, cellPosition.y].portal.RemoveLine(LineInPortalPattern.LeftDown);
-            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x + 1, cellPosition.y].portal);
-        }
-        else if (line == LineInPortalPattern.Center)
-        {
-            map[cellPosition.x, cellPosition.y + 1].portal.RemoveLine(LineInPortalPattern.Down);
-            map[cellPosition.x, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.Up);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y + 1].portal);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
-        }else if (line == LineInPortalPattern.Down)
-        {
-            map[cellPosition.x, cellPosition.y - 1].portal.RemoveLine(LineInPortalPattern.Center);
-            map[cellPosition.x, cellPosition.y - 2].portal.RemoveLine(LineInPortalPattern.Up);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 1].portal);
-            portalsModified.Add(map[cellPosition.x, cellPosition.y - 2].portal);
+            case Direction.Up:
+                int currentX = cellPosition.x;
+                int currentY = cellPosition.y + 1;
+                if (currentY < map.GetLength(1) && map[currentX, currentY].portal != null)
+                {
+                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
+                }
+                break;
+            case Direction.Down:
+                currentX = cellPosition.x;
+                currentY = cellPosition.y - 1;
+                if (currentY >= 0 && map[currentX, currentY].portal != null)
+                {
+                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
+                }
+                break;
+            case Direction.Left:
+                currentX = cellPosition.x - 1;
+                currentY = cellPosition.y;
+                if (currentX >= 0 && map[currentX, currentY].portal != null)
+                {
+                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
+                }
+                break;
+            case Direction.Right:
+                currentX = cellPosition.x + 1;
+                currentY = cellPosition.y;
+                if (currentX < map.GetLength(0) && map[currentX, currentY].portal != null)
+                {
+                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
+                }
+                break;
         }
         
         PortalLineModifiedEvent?.Invoke(this, portalsModified);

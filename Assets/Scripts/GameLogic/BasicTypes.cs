@@ -1,5 +1,3 @@
-using System;
-
 public enum Team
 {
     Red,
@@ -36,4 +34,12 @@ public enum LineInPortalPattern
     RightDown = 16,
     Center = 32,
     Down = 64
+}
+
+public enum Direction
+{
+    Up = LineInPortalPattern.Center,
+    Down = LineInPortalPattern.Down,
+    Left = LineInPortalPattern.LeftDown,
+    Right = LineInPortalPattern.RightDown,
 }
