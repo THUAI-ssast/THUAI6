@@ -46,8 +46,7 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
         transform.position = new Vector3(model.position.x, model.position.y, 0);
         transform.rotation = Quaternion.Euler(0, 0, model.rotation);
 
-        // TODO: set the view based on the model, e.g. set the color of the player based on its Team
-
+        _view.SetColor(model.team);
     }
 
     void FixedUpdate()

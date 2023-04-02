@@ -1,9 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 public class PlayerView : MonoBehaviour
 {
-    // TODO: define and implement what PlayerPresenter needs.
-    // eg. In PlayerPresenter.SetModel
+    public void SetColor(Team team)
+    {
+        Color color = Color.white;
+        switch (team)
+        {
+            case Team.Blue:
+                color = Color.blue;
+                break;
+            case Team.Red:
+                color = Color.red;
+                break;
+        }
+        GetComponent<Renderer>().material.color = color;
+    }
 }
