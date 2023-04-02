@@ -67,8 +67,6 @@ public class PlayerModel
     public const float ShootInterval = 0.1f; // seconds
     // max distance between the player and the cell where the player can place a bomb
     public const float MaxBombDistance = 5.0f;
-    public const float MaxVelocity = 4.0f;
-    public const float Acceleration = 10.0f;
 
     public event EventHandler<Vector2> PositionChangedEvent;
     public event EventHandler DiedEvent;
