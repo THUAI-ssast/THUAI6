@@ -1,8 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MapView))]
 public class MapPresenter : MonoSingleton<MapPresenter>
 {
     [SerializeField]
@@ -67,23 +66,25 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public void SetBombPosition(BombModel bomb, Vector2Int target)
     {
+        model.RemoveBomb(bomb);
         bomb.position = target;
-        // TODO: update map model
+        model.PlaceBomb(bomb);        
     }
 
     /// <summary>
     /// Apply line addition to all related portals
     /// </summary>
-    /// <param name="target"></param>
-    /// <param name="line"></param>
-    public void AddLine(Vector2Int target, LineInPortalPattern line)
+    public void AddLine(Vector2Int target, Direction direction)
     {
-        model.AddLine(target, line);
+        model.AddLine(target, direction);
     }
 
-    public void RemoveLine(Vector2Int target, LineInPortalPattern line)
+    /// <summary>
+    /// Apply line removal to all related portals
+    /// </summary>
+    public void RemoveLine(Vector2Int target, Direction direction)
     {
-        model.RemoveLine(target, line);
+        model.RemoveLine(target, direction);
     }
 
     public void ActivatePortal(PortalModel portal, PortalModel destination)
