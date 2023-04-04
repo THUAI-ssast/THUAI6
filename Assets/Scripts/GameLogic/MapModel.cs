@@ -93,7 +93,11 @@ public class MapModel : Singleton<MapModel>
             {
                 if (initialMap[i, j] == 1)
                 {
-                    this.map[i, j].isObstacle = true;
+                    map[i, j].isObstacle = true;
+                }
+                else
+                {
+                    map[i, j].portal = new PortalModel(new Vector2Int(i, j));
                 }
             }
         }
