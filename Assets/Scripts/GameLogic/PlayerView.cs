@@ -7,7 +7,7 @@ public class PlayerView : MonoBehaviour
         switch (team)
         {
             case Team.Blue:
-                color = Color.blue;
+                color = new Color(88 / 255.0f, 184 / 255.0f, 221 / 255.0f);
                 break;
             case Team.Red:
                 color = Color.red;
