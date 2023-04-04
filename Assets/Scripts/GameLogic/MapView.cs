@@ -8,9 +8,23 @@ public class MapView : MonoBehaviour
     public Tilemap tileMap;
     public TileBase roadTile;
     public TileBase obstacleTile;
-    // public Sprite lineTexture1; 
+    public List<TileBase> lineTiles;
+
     public List<Sprite> lineTextures; // 在Inspector中设置线条纹理
 
+    void Awake()
+    {
+        // create line tiles
+        lineTiles = new List<TileBase>();
+        for(int i = 0; i < lineTextures.Count; i++)
+        {
+            Tile tile = ScriptableObject.CreateInstance<Tile>();
+            // no collider
+            tile.colliderType = Tile.ColliderType.None;
+            tile.sprite = lineTextures[i];
+            lineTiles.Add(tile);
+        }
+    }
     
     public void InitMap(Cell[,] map)
     {
@@ -21,17 +35,10 @@ public class MapView : MonoBehaviour
                 if(map[i, j].isObstacle)
                 {
                     tileMap.SetTile(new Vector3Int(i, j, 0), obstacleTile);
-                    // 设置障碍物的碰撞体
-                    BoxCollider2D collider = tileMap.gameObject.AddComponent<BoxCollider2D>();
-                    collider.size = new Vector2(1, 1); // 设置碰撞体的大小
-                    collider.offset = new Vector2(0.5f, 0.5f); // 设置碰撞体的偏移量
                 }
                 else
                 {
                     tileMap.SetTile(new Vector3Int(i, j, 0), roadTile);
-                    // Tile tile = ScriptableObject.CreateInstance<Tile>();
-                    // tile.sprite = lineTextures[0];
-                    // tileMap.SetTile(new Vector3Int(i, j, 0), tile);
                 }
             }
         }
@@ -41,39 +48,39 @@ public class MapView : MonoBehaviour
     {
         int i = portal.position.x;
         int j = portal.position.y;
-        Tile tile = ScriptableObject.CreateInstance<Tile>();
+        TileBase tile = lineTiles[0];
         if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[14];
+            tile = lineTiles[14];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[13];
+            tile = lineTiles[13];
         }else if(portal.pattern == (PortalPattern) ( LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[12];
+            tile = lineTiles[12];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[11];
+            tile = lineTiles[11];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown)){
-            tile.sprite = lineTextures[10];
+            tile = lineTiles[10];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[9];
+            tile = lineTiles[9];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[8];
+            tile = lineTiles[8];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.RightDown)){
-            tile.sprite = lineTextures[7];
+            tile = lineTiles[7];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown & LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[6];
+            tile = lineTiles[6];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown)){
-            tile.sprite = lineTextures[5];
+            tile = lineTiles[5];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown)){
-            tile.sprite = lineTextures[4];
+            tile = lineTiles[4];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Down)){
-            tile.sprite = lineTextures[3];
+            tile = lineTiles[3];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.RightDown)){
-            tile.sprite = lineTextures[2];
+            tile = lineTiles[2];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center)){
-            tile.sprite = lineTextures[1];
+            tile = lineTiles[1];
         }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown)){
-            tile.sprite = lineTextures[0];
+            tile = lineTiles[0];
         }else{
-            tile.sprite = lineTextures[15];}
+            tile = lineTiles[15];}
         tileMap.SetTile(new Vector3Int(i, j, 0), tile);
     }
 }
