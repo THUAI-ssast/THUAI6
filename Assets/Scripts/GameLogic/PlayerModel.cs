@@ -82,6 +82,11 @@ public class PlayerModel
 
     public float respawnTimeLeft = 0.0f; // seconds. 0 means not respawning
 
+    public static Vector2 GetPositionFromCellPosition(Vector2Int cell)
+    {
+        return new Vector2(cell.x + 0.5f, cell.y + 0.3f);
+    }
+
     public PlayerModel(int id, Team team, Vector2 position)
     {
         this.id = id;
