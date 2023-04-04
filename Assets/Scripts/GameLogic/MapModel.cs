@@ -155,38 +155,42 @@ public class MapModel : Singleton<MapModel>
         };
 
         // add the line for all related portals
-        AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
+        // lines can not be near obstacles
         switch (direction)
         {
             case Direction.Up:
                 int currentX = cellPosition.x;
                 int currentY = cellPosition.y + 1;
-                if (currentY < map.GetLength(1) && map[currentX, currentY].portal != null)
+                if (currentY < map.GetLength(1) && !map[currentX, currentY].isObstacle)
                 {
+                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
                     AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
                 }
                 break;
             case Direction.Down:
                 currentX = cellPosition.x;
                 currentY = cellPosition.y - 1;
-                if (currentY >= 0 && map[currentX, currentY].portal != null)
+                if (currentY >= 0 && !map[currentX, currentY].isObstacle)
                 {
+                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
                     AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
                 }
                 break;
             case Direction.Left:
                 currentX = cellPosition.x - 1;
                 currentY = cellPosition.y;
-                if (currentX >= 0 && map[currentX, currentY].portal != null)
+                if (currentX >= 0 && !map[currentX, currentY].isObstacle)
                 {
+                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
                     AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
                 }
                 break;
             case Direction.Right:
                 currentX = cellPosition.x + 1;
                 currentY = cellPosition.y;
-                if (currentX < map.GetLength(0) && map[currentX, currentY].portal != null)
+                if (currentX < map.GetLength(0) && !map[currentX, currentY].isObstacle)
                 {
+                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
                     AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
                 }
                 break;
@@ -219,7 +223,7 @@ public class MapModel : Singleton<MapModel>
             case Direction.Up:
                 int currentX = cellPosition.x;
                 int currentY = cellPosition.y + 1;
-                if (currentY < map.GetLength(1) && map[currentX, currentY].portal != null)
+                if (currentY < map.GetLength(1) && !map[currentX, currentY].isObstacle)
                 {
                     RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
                 }
@@ -227,7 +231,7 @@ public class MapModel : Singleton<MapModel>
             case Direction.Down:
                 currentX = cellPosition.x;
                 currentY = cellPosition.y - 1;
-                if (currentY >= 0 && map[currentX, currentY].portal != null)
+                if (currentY >= 0 && !map[currentX, currentY].isObstacle)
                 {
                     RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
                 }
@@ -235,7 +239,7 @@ public class MapModel : Singleton<MapModel>
             case Direction.Left:
                 currentX = cellPosition.x - 1;
                 currentY = cellPosition.y;
-                if (currentX >= 0 && map[currentX, currentY].portal != null)
+                if (currentX >= 0 && !map[currentX, currentY].isObstacle)
                 {
                     RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
                 }
@@ -243,7 +247,7 @@ public class MapModel : Singleton<MapModel>
             case Direction.Right:
                 currentX = cellPosition.x + 1;
                 currentY = cellPosition.y;
-                if (currentX < map.GetLength(0) && map[currentX, currentY].portal != null)
+                if (currentX < map.GetLength(0) && !map[currentX, currentY].isObstacle)
                 {
                     RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
                 }
