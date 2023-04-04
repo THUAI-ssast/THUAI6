@@ -143,9 +143,14 @@ public class MapModel : Singleton<MapModel>
 
         Action<PortalModel, LineInPortalPattern> AddLineForPortal = (portal, line) =>
         {
-            portalsClassifiedByPattern[portal.pattern].Remove(portal);
+            PortalPattern pattern = portal.pattern;
+            if (!portalsClassifiedByPattern.ContainsKey(pattern))
+            {
+                portalsClassifiedByPattern.Add(pattern, new List<PortalModel>());
+            }
+            portalsClassifiedByPattern[pattern].Remove(portal);
             portal.AddLine(line);
-            portalsClassifiedByPattern[portal.pattern].Add(portal);
+            portalsClassifiedByPattern[pattern].Add(portal);
             portalsModified.Add(portal);
         };
 
@@ -196,9 +201,14 @@ public class MapModel : Singleton<MapModel>
 
         Action<PortalModel, LineInPortalPattern> RemoveLineForPortal = (portal, line) =>
         {
-            portalsClassifiedByPattern[portal.pattern].Remove(portal);
+            PortalPattern pattern = portal.pattern;
+            if (!portalsClassifiedByPattern.ContainsKey(pattern))
+            {
+                portalsClassifiedByPattern.Add(pattern, new List<PortalModel>());
+            }
+            portalsClassifiedByPattern[pattern].Remove(portal);
             portal.RemoveLine(line);
-            portalsClassifiedByPattern[portal.pattern].Add(portal);
+            portalsClassifiedByPattern[pattern].Add(portal);
             portalsModified.Add(portal);
         };
         
