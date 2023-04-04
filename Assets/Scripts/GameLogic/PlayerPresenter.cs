@@ -7,7 +7,7 @@ public class PlayerActionEventArgs : EventArgs
     public dynamic action;
 }
 
-public class PlayerPresenter : MonoSingleton<PlayerPresenter>
+public class PlayerPresenter : MonoBehaviour
 {
     [SerializeField]
     private PlayerModel _model;
@@ -30,13 +30,14 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
         }
     }
     private PlayerView _view;
-    private Rigidbody _rigidbody;
+    private Rigidbody2D _rb2D;
 
     public static event EventHandler<PlayerActionEventArgs> PlayerActionEvent;
 
-    public override void Init()
+    void Awake()
     {
         _view = GetComponent<PlayerView>();
+        _rb2D = GetComponent<Rigidbody2D>();
     }
 
     public void SetModel(PlayerModel model)
@@ -86,13 +87,13 @@ public class PlayerPresenter : MonoSingleton<PlayerPresenter>
         PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new MoveAction(direction) });
 
         // Make the game object move
-        Vector3 directionVector = model.rotation * Vector3.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
-        const float MaxVelocity = PlayerModel.MaxVelocity;
-        if (_rigidbody.velocity.magnitude > MaxVelocity)
+
+        Vector2 directionVector = Quaternion.Euler(0, 0, model.rotation) * Vector2.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
+        _rb2D.velocity += directionVector * PlayerModel.Acceleration * Time.fixedDeltaTime;
+        if (_rb2D.velocity.magnitude > PlayerModel.MaxVelocity)
         {
-            _rigidbody.velocity = _rigidbody.velocity.normalized * MaxVelocity;
+            _rb2D.velocity = _rb2D.velocity.normalized * PlayerModel.MaxVelocity;
         }
-        _rigidbody.AddForce(directionVector * PlayerModel.Acceleration, ForceMode.Acceleration);
 
         // Model is updated in FixedUpdate
     }
