@@ -103,7 +103,7 @@ public class MapModel : Singleton<MapModel>
         const int playerCount = teamCount * playerCountEachTeam;
         for (int i = 0; i < playerCount; i++)
         {
-            players.Add(new PlayerModel(i, (Team)(i / playerCountEachTeam), GetRandomPosition()));
+            players.Add(new PlayerModel(i, (Team)(i / playerCountEachTeam), PlayerModel.GetPositionFromCellPosition(GetRandomPosition())));
         }
     }
 
