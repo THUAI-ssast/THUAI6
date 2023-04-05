@@ -44,6 +44,10 @@ public class MapPresenter : MonoSingleton<MapPresenter>
             GameObject playerObject = Instantiate(playerPrefab);
             PlayerPresenter playerPresenter = playerObject.GetComponent<PlayerPresenter>();
             playerPresenter.SetModel(playerModel);
+
+            AiPlayer aiPlayer = playerObject.GetComponent<AiPlayer>();
+            aiPlayer.Init(playerPresenter, this);
+            aiPlayer.agentType = AgentType.Player;
         }
 
         // preload prefabs
@@ -68,7 +72,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     {
         model.RemoveBomb(bomb);
         bomb.position = target;
-        model.PlaceBomb(bomb);        
+        model.PlaceBomb(bomb);
     }
 
     /// <summary>
