@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PortalView))]
@@ -40,9 +37,6 @@ public class PortalPresenter : MonoBehaviour
     public void Activate(Vector2Int destination)
     {
         model.Activate();
-
-        view?.OnPortalActivated();
-        
         DelayedFunctionCaller.CallAfter(PortalModel.WaitTime, () => Teleport(destination));
     }
 
