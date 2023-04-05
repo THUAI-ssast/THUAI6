@@ -31,7 +31,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public override void Init()
     {
-        model = new MapModel();
+        model = MapModel.Instance;
 
         // Initialize map view
         _view = GetComponent<MapView>();
