@@ -31,7 +31,7 @@ public class MapModel : Singleton<MapModel>
     public List<BombModel> bombs { get; private set; } = new List<BombModel>();
     public Dictionary<PortalPattern, List<PortalModel>> portalsClassifiedByPattern { get; private set; } = new Dictionary<PortalPattern, List<PortalModel>>();
 
-    public MapModel()
+    private MapModel()
     {
         // initialize map
         int[,] initialMap = new int[,]
