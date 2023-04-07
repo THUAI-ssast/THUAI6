@@ -7,6 +7,7 @@ public class PlayerActionEventArgs : EventArgs
     public dynamic action;
 }
 
+[RequireComponent(typeof(PlayerView))]
 public class PlayerPresenter : MonoBehaviour
 {
     [SerializeField]
@@ -56,19 +57,7 @@ public class PlayerPresenter : MonoBehaviour
         model.position = transform.position;
         // model.rotation is float, transform.rotation is Quaternion
         model.rotation = transform.rotation.eulerAngles.z;
-        // Update time left
-        if (!model.state.isAlive)
-        {
-            model.respawnTimeLeft -= Time.fixedDeltaTime;
-            if (model.respawnTimeLeft <= 0.0f)
-            {
-                Respawn();
-            }
-        }
-        // TODO: There are other time-related states to be updated
     }
-
-    // TODO: methods to be implemented
 
     // 1. Check if the player can perform the action
     // 2. If yes, invoke the related events and perform the action
@@ -192,7 +181,7 @@ public class PlayerPresenter : MonoBehaviour
         transform.position = new Vector3(position.x, position.y, 0);
     }
 
-    private void OnDied(object sender, EventArgs e)
+    private void OnDied(object sender, Team team)
     {
         // TODO
     }
