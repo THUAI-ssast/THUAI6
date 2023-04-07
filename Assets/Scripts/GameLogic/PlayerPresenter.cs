@@ -135,19 +135,29 @@ public class PlayerPresenter : MonoBehaviour
 
     public bool TryPlaceBomb(Vector2Int target)
     {
+        // target is valid
+        bool isTargetValid = MapModel.Instance.IsRoad(target);
+        if (!isTargetValid) return false;
+        // target is in range
+        float distance = Vector2.Distance(target, model.position);
+        if (distance > PlayerModel.MaxBombDistance) return false;
+        // player is ready to place bomb
+        bool toolsNotReady = model.bombCount <= 0;
+        if (!model.state.canPlaceBomb || toolsNotReady) return false;
+
+        PlaceBomb(target);
         return true;
     }
 
     public void PlaceBomb(Vector2Int target)
     {
-        // Something before the bomb is placed. Mainly, update player state
-        // TODO
-
-        // Place the bomb
-        MapPresenter.Instance.PlaceBomb(target);
-
-        // Something after the bomb is placed
-        // TODO
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new PlaceBombAction(target) });
+        model.PlaceBombBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.PlaceBombTime, () =>
+        {
+            MapPresenter.Instance.PlaceBomb(Vector2Int.FloorToInt(transform.position));
+            model.PlaceBombEnd();
+        });
     }
 
     public bool TryAddLine(Vector2Int target, LineInPortalPattern line)

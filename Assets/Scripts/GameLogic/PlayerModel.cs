@@ -149,6 +149,19 @@ public class PlayerModel
         });
     }
 
+    public void PlaceBombBegin()
+    {
+        state.isPlacingBomb = true;
+        state.DisableAll();
+    }
+
+    public void PlaceBombEnd()
+    {
+        bombCount--;
+        state.isPlacingBomb = false;
+        state.EnableAll();
+    }
+
     private void Die()
     {
         state.isAlive = false;
