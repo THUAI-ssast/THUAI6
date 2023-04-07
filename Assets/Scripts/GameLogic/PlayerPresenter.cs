@@ -7,6 +7,7 @@ public class PlayerActionEventArgs : EventArgs
     public dynamic action;
 }
 
+[RequireComponent(typeof(PlayerView))]
 public class PlayerPresenter : MonoBehaviour
 {
     [SerializeField]
@@ -56,19 +57,7 @@ public class PlayerPresenter : MonoBehaviour
         model.position = transform.position;
         // model.rotation is float, transform.rotation is Quaternion
         model.rotation = transform.rotation.eulerAngles.z;
-        // Update time left
-        if (!model.state.isAlive)
-        {
-            model.respawnTimeLeft -= Time.fixedDeltaTime;
-            if (model.respawnTimeLeft <= 0.0f)
-            {
-                Respawn();
-            }
-        }
-        // TODO: There are other time-related states to be updated
     }
-
-    // TODO: methods to be implemented
 
     // 1. Check if the player can perform the action
     // 2. If yes, invoke the related events and perform the action
@@ -118,20 +107,30 @@ public class PlayerPresenter : MonoBehaviour
 
     public bool TryShoot()
     {
+        bool toolsNotReady = model.ammo <= 0 || model.state.isShooting;
+        if (!model.state.canShoot || toolsNotReady) return false;
+        Shoot();
         return true;
     }
 
     public void Shoot()
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ShootAction() });
+        ShootBullet();
+        model.Shoot();
     }
 
     public bool TryChangeBullet()
     {
+        if (!model.state.canChangeBullet) return false;
+        ChangeBullet();
         return true;
     }
 
     public void ChangeBullet()
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ChangeBulletAction() });
+        model.ChangeBullet();
     }
 
     public bool TryPlaceBomb(Vector2Int target)
@@ -178,11 +177,29 @@ public class PlayerPresenter : MonoBehaviour
     {
     }
 
+    private void ShootBullet()
+    {
+        Vector2 direction = transform.rotation * Vector3.up;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, PlayerModel.BulletRange);
+        
+        if (hit.collider == null)
+        {
+            _view.ShootBullet(transform.position + (Vector3)direction * PlayerModel.BulletRange);
+            return;
+        }
+        _view.ShootBullet(hit.point);
+
+        // If a player is hit, the player is damaged
+        if (hit.collider.gameObject.TryGetComponent<PlayerPresenter>(out PlayerPresenter playerPresenter))
+        {
+            playerPresenter.model.Hurt(PlayerModel.BulletDamage);
+        }
+    }
+
     private void Respawn()
     {
-        // TODO: to be implemented
-        // update the model
-        // update game object
+        gameObject.SetActive(true);
+        model.Respawn();
     }
 
     // from model
@@ -192,9 +209,15 @@ public class PlayerPresenter : MonoBehaviour
         transform.position = new Vector3(position.x, position.y, 0);
     }
 
-    private void OnDied(object sender, EventArgs e)
+    private void OnDied(object sender, Team team)
     {
-        // TODO
+        gameObject.SetActive(false);
+
+        // The enemy team gets a point
+        GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
+
+        // Respawn after a delay
+        DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, Respawn);
     }
 }
 
