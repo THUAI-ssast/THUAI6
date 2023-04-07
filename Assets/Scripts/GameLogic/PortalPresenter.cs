@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PortalView))]
@@ -40,9 +37,6 @@ public class PortalPresenter : MonoBehaviour
     public void Activate(Vector2Int destination)
     {
         model.Activate();
-
-        view?.OnPortalActivated();
-        
         DelayedFunctionCaller.CallAfter(PortalModel.WaitTime, () => Teleport(destination));
     }
 
@@ -50,11 +44,23 @@ public class PortalPresenter : MonoBehaviour
     {
         model.Teleport();
 
-        // TODO: to be implemented
         var players = MapModel.Instance.players;
         var bombs = MapModel.Instance.bombs;
         // Update the position of all entities in the portal.
-        // eg. player.position = destination);
+        foreach (var player in players)
+        {
+            if (model.isInPortal(player.position))
+            {
+                player.MoveBy(destination - model.position);
+            }
+        }
+        foreach (var bomb in bombs)
+        {
+            if (model.isInPortal(bomb.position))
+            {
+                MapPresenter.Instance.SetBombPosition(bomb, destination);
+            }
+        }
 
         // Call the view here to do the teleportation animation if needed.
         
