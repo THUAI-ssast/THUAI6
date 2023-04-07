@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1380028601955313605}
   - component: {fileID: -5121683874150813708}
   - component: {fileID: 4910799919439177115}
+  - component: {fileID: -8062770588698999668}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -120,8 +121,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12ab3817a8aeba945a66c20cd6b01b52, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1380028601955313605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +133,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 466aaa089e849614fb3be1cba4604ef3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!61 &-5121683874150813708
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -259,3 +260,17 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!114 &-8062770588698999668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5210535631581871551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 962ab2d3e2af2b94e8edd9c845b11f7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reactionActionCount: 10
+  agentType: 0

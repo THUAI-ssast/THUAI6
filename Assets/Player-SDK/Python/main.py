@@ -2,10 +2,15 @@ import json
 import random
 
 def agent(observation):
-    if random.random() < 0.2:
+    p = random.random()
+    if p < 0.15:
         return {
             "type": "Rotate",
             "direction": 0,
+        }
+    elif p < 0.2:
+        return {
+            "type": "Shoot"
         }
     else:
         return {

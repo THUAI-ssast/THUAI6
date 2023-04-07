@@ -1,0 +1,37 @@
+{
+    "render": true,
+    "data": {
+        "players": [
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entry_point": "/Player-SDK/Python/sdk/main.py"
+            }
+        ]
+    }
+}
