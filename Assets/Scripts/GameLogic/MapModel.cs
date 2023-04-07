@@ -95,6 +95,37 @@ public class MapModel : Singleton<MapModel>
         } while (true);
     }
 
+    public bool IsInMap(Vector2Int cellPosition)
+    {
+        return cellPosition.x >= 0 && cellPosition.x < map.GetLength(0) && cellPosition.y >= 0 && cellPosition.y < map.GetLength(1);
+    }
+
+    public bool IsRoad(Vector2Int cellPosition)
+    {
+        return IsInMap(cellPosition) && !map[cellPosition.x, cellPosition.y].isObstacle;
+    }
+
+    public bool CanModifyPortalLine(Vector2Int cellPosition, Direction direction)
+    {
+        if (!IsRoad(cellPosition))
+        {
+            return false;
+        }
+        switch (direction)
+        {
+            case Direction.Up:
+                return IsRoad(cellPosition + Vector2Int.up);
+            case Direction.Down:
+                return IsRoad(cellPosition + Vector2Int.down);
+            case Direction.Left:
+                return IsRoad(cellPosition + Vector2Int.left);
+            case Direction.Right:
+                return IsRoad(cellPosition + Vector2Int.right);
+            default:
+                return false;
+        }
+    }
+
     public void PlaceBomb(BombModel bomb)
     {
         bombs.Add(bomb);
