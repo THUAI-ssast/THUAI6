@@ -1,6 +1,13 @@
 using UnityEngine;
 public class PlayerView : MonoBehaviour
 {
+    private LineRenderer _bulletLineRenderer;
+
+    void Awake()
+    {
+        _bulletLineRenderer = GetComponent<LineRenderer>();
+    }
+
     public void SetColor(Team team)
     {
         Color color = Color.white;
@@ -14,5 +21,15 @@ public class PlayerView : MonoBehaviour
                 break;
         }
         GetComponent<Renderer>().material.color = color;
+        _bulletLineRenderer.startColor = color;
+        _bulletLineRenderer.endColor = color;
+    }
+
+    public void ShootBullet(Vector2 target)
+    {
+        _bulletLineRenderer.SetPosition(0, transform.position);
+        _bulletLineRenderer.SetPosition(1, target);
+        _bulletLineRenderer.enabled = true;
+        DelayedFunctionCaller.CallAfter(0.1f, () => _bulletLineRenderer.enabled = false);
     }
 }

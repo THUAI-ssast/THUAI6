@@ -121,6 +121,34 @@ public class PlayerModel
         }
     }
 
+    public void Shoot()
+    {
+        ammo--;
+        state.isShooting = true;
+        state.canShoot = false;
+        DelayedFunctionCaller.CallAfter(PlayerModel.ShootInterval, () =>
+        {
+            state.isShooting = false;
+            state.canShoot = true;
+        });
+    }
+
+    public void ChangeBullet()
+    {
+        state.isChangingBullet = true;
+        state.DisableAll();
+        state.canMove = true;
+        state.canRotate = true;
+
+        DelayedFunctionCaller.CallAfter(PlayerModel.ChangeBulletTime, () =>
+        {
+            ammo = PlayerModel.MaxAmmo;
+
+            state.isChangingBullet = false;
+            state.EnableAll();
+        });
+    }
+
     private void Die()
     {
         state.isAlive = false;

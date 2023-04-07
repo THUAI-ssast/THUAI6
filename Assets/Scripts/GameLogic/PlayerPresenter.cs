@@ -107,20 +107,30 @@ public class PlayerPresenter : MonoBehaviour
 
     public bool TryShoot()
     {
+        bool toolsNotReady = model.ammo <= 0 || model.state.isShooting;
+        if (!model.state.canShoot || toolsNotReady) return false;
+        Shoot();
         return true;
     }
 
     public void Shoot()
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ShootAction() });
+        ShootBullet();
+        model.Shoot();
     }
 
     public bool TryChangeBullet()
     {
+        if (!model.state.canChangeBullet) return false;
+        ChangeBullet();
         return true;
     }
 
     public void ChangeBullet()
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ChangeBulletAction() });
+        model.ChangeBullet();
     }
 
     public bool TryPlaceBomb(Vector2Int target)
@@ -165,6 +175,25 @@ public class PlayerPresenter : MonoBehaviour
 
     public void ActivatePortal(Vector2Int target, Vector2Int destination)
     {
+    }
+
+    private void ShootBullet()
+    {
+        Vector2 direction = transform.rotation * Vector3.up;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, PlayerModel.BulletRange);
+        
+        if (hit.collider == null)
+        {
+            _view.ShootBullet(transform.position + (Vector3)direction * PlayerModel.BulletRange);
+            return;
+        }
+        _view.ShootBullet(hit.point);
+
+        // If a player is hit, the player is damaged
+        if (hit.collider.gameObject.TryGetComponent<PlayerPresenter>(out PlayerPresenter playerPresenter))
+        {
+            playerPresenter.model.Hurt(PlayerModel.BulletDamage);
+        }
     }
 
     private void Respawn()
