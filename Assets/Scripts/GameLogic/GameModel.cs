@@ -1,7 +1,7 @@
 public class GameModel : Singleton<GameModel>
 {
     // TODO: to be decided
-    public const float GameTime = 120.0f; // seconds
+    public const float GameTime = 5.0f; // seconds
     public const int PlayerCountEachTeam = 3;
     public const int TeamCount = 2;
 

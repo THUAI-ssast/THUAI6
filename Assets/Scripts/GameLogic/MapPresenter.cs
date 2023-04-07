@@ -44,10 +44,6 @@ public class MapPresenter : MonoSingleton<MapPresenter>
             GameObject playerObject = Instantiate(playerPrefab, transform);
             PlayerPresenter playerPresenter = playerObject.GetComponent<PlayerPresenter>();
             playerPresenter.SetModel(playerModel);
-
-            AiPlayer aiPlayer = playerObject.GetComponent<AiPlayer>();
-            aiPlayer.Init(playerPresenter, this);
-            aiPlayer.agentType = AgentType.Player;
         }
 
         // preload prefabs

@@ -12,6 +12,7 @@ public class Recorder : MonoSingleton<Recorder>
 {
     public dynamic init { get; private set; }
     public List<dynamic> process { get; private set; }
+    public List<dynamic> actions { get; private set; }
     public int[] result { get; private set; }
 
     private GameModel _game;
@@ -20,20 +21,28 @@ public class Recorder : MonoSingleton<Recorder>
     {
         process = new List<dynamic>();
         _game = GameModel.Instance;
+        actions = new List<dynamic>();
     }
 
     void Start()
     {
         GamePresenter.GameStartEvent += OnGameStart;
-        PlayerPresenter.PlayerActionEvent += OnPlayerAction;
+        // PlayerPresenter.PlayerActionEvent += OnPlayerAction;
+        AiPlayer.AiPlayerRecordsEvent += OnAiPlayerRecords;
         GamePresenter.GameEndEvent += OnGameEnd;
     }
 
     void OnDisable()
     {
         GamePresenter.GameStartEvent -= OnGameStart;
-        PlayerPresenter.PlayerActionEvent -= OnPlayerAction;
+        // PlayerPresenter.PlayerActionEvent -= OnPlayerAction;
+        AiPlayer.AiPlayerRecordsEvent -= OnAiPlayerRecords;
         GamePresenter.GameStartEvent -= OnGameEnd;
+    }
+
+    void OnAiPlayerRecords(object sender, AiPlayerRecordsEventArgs args)
+    {
+        actions.Add(args);
     }
 
     void OnGameStart(object sender, EventArgs args)
@@ -90,7 +99,19 @@ public class Recorder : MonoSingleton<Recorder>
 
     private void ExportToJson()
     {
-        string jsonString = JsonConvert.SerializeObject(this);
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+            {
+                // errors.Add(args.ErrorContext.Error.Message);
+                args.ErrorContext.Handled = true;
+            }
+        };
+        settings.Converters.Add(new Vector2Converter());
+        settings.Converters.Add(new Vector2IntConverter());
+
+        string jsonString = JsonConvert.SerializeObject(this, Formatting.None, settings);
 
         // save the data to a json file
         string path = Application.dataPath + "/../record.json";

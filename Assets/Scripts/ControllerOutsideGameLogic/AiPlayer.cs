@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,9 +8,11 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Newtonsoft.Json;
 
-class Observation {
+class Observation
+{
     public MapPresenter map;
     public bool isGameOver;
+    public int playerId;
     public int frameCount;
 }
 
@@ -49,6 +52,7 @@ public class PlayerAgent : Agent
 {
     private Process p = null;
     private string buffer = "";
+    private List<string> actionList = new List<string>();
     public PlayerAgent(string fileName, string arguments)
     {
         try
@@ -84,6 +88,7 @@ public class PlayerAgent : Agent
     {
         string action = buffer;
         buffer = "";
+        actionList.Add(action);
         return action;
     }
 
@@ -94,69 +99,79 @@ public class PlayerAgent : Agent
     }
 }
 
-public class RecordAgent : Agent
+public class AiPlayerRecordsEventArgs : EventArgs
 {
-    private StreamReader recordReader = null;
-    public RecordAgent(string recordFileName)
-    {
-        recordReader = new StreamReader(recordFileName);
-    }
-
-    public override string getAction()
-    {
-        return recordReader.ReadLine();
-    }
-
-    public override void sendObservation(string observation)
-    {
-        // do nothing
-    }
+    public int playerId;
+    public List<string> actionStringList;
 }
-
-public enum AgentType
-{
-    Player,
-    Record,
-    Human,
-}
-
 
 public class AiPlayer : MonoBehaviour
 {
+    public static event EventHandler<AiPlayerRecordsEventArgs> AiPlayerRecordsEvent;
     public int reactionActionCount = 10; // 0.2s = 10 frames
-    public AgentType agentType = AgentType.Player;
     PlayerPresenter player; // can read the player's state and call the player's action
     MapPresenter map;
+    dynamic config;
     Agent agent = null;
     private int frameCount = 0;
     Queue<dynamic> actionQueue = new Queue<dynamic>();
+    private List<string> actionStringRecords = new List<string>();
 
     void Awake()
     {
     }
 
     // Assign the player that this AI should control
-    public void Init(PlayerPresenter player, MapPresenter map)
+    public void Init(PlayerPresenter player, MapPresenter map, dynamic config)
     {
         this.player = player;
         this.map = map;
+        this.config = config;
+    }
+
+    void OnGameEnd(object sender, EventArgs args)
+    {
+        AiPlayerRecordsEvent?.Invoke(this, new AiPlayerRecordsEventArgs {
+            playerId = player.model.id,
+            actionStringList = actionStringRecords
+        });
     }
 
     void Start()
     {
-        // setup AI so that it can be called
-        if (agentType == AgentType.Record)
-        {
-            agent = new RecordAgent(Application.dataPath + "/Records/record.txt");
-        }
-        else if (agentType == AgentType.Player)
-        {
-            this.agent = new PlayerAgent(
-                "python",
-                Application.dataPath + "/Player-SDK/Python/main.py"
-            );
-        }
+        GamePresenter.GameEndEvent += OnGameEnd;
 
+        if (config.type == "ai")
+        {
+            if (config.language == "python")
+            {
+                agent = new PlayerAgent(
+                    "python",
+                    Application.dataPath + config.entry_point
+                );
+            }
+            else if (config.language == "cpp")
+            {
+                // TODO: C++ SDK
+            }
+            else
+            {
+                Debug.LogError("Unknown language: " + config.language);
+            }
+        }
+        else if (config.type == "human")
+        {
+            // TODO: human agent
+        }
+        else
+        {
+            Debug.LogError("Unknown type: " + config.type);
+        }
+    }
+
+    void OnDisable()
+    {
+        GamePresenter.GameEndEvent -= OnGameEnd;
     }
 
     // TODO: to be implemented
@@ -166,6 +181,7 @@ public class AiPlayer : MonoBehaviour
 
         // Consume action from agent
         string actionString = agent.getAction();
+        actionStringRecords.Add(actionString);
         foreach (string action in actionString.Split('\n'))
         {
             if (action == "")
@@ -201,7 +217,7 @@ public class AiPlayer : MonoBehaviour
         JsonSerializerSettings settings = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Error = delegate(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+            Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
             {
                 // errors.Add(args.ErrorContext.Error.Message);
                 args.ErrorContext.Handled = true;
@@ -209,20 +225,22 @@ public class AiPlayer : MonoBehaviour
         };
         settings.Converters.Add(new Vector2Converter());
         settings.Converters.Add(new Vector2IntConverter());
-        string observation_str = JsonConvert.SerializeObject(new Observation {
+        string observation_str = JsonConvert.SerializeObject(new Observation
+        {
             map = map,
             isGameOver = false, // TODO
+            playerId = this.player.model.id,
             frameCount = frameCount,
         }, Formatting.None, settings);
         // Write to tmp.txt
-        // File.WriteAllText(Application.dataPath + "/tmp.txt", observation_str);
+        // File.WriteAllText(Application.dataPath + "/tmp.json", observation_str);
         return observation_str;
     }
 
     void InvokeAction(dynamic action)
     {
-        Debug.Log("action.type: " + action.type);
-        Debug.Log("action.direction: " + action.direction);
+        // Debug.Log("action.type: " + action.type);
+        // Debug.Log("action.direction: " + action.direction);
         if (action.type == "Move")
         {
             player.TryMove((ForwardOrBackward)action.direction);
@@ -251,9 +269,9 @@ public class AiPlayer : MonoBehaviour
         {
             player.TryRemoveLine(new Vector2Int((int)action.targetX, (int)action.targetY), (LineInPortalPattern)action.line);
         }
-        else if (action.type == "UsePortal")
+        else if (action.type == "ActivatePortal")
         {
-            // player.TryUsePortal();
+            player.TryActivatePortal(new Vector2Int((int)action.sourceX, (int)action.sourceY), new Vector2Int((int)action.targetX, (int)action.targetY));
         }
         else if (action.type == "Idle")
         {
