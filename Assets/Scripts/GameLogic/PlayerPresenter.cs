@@ -169,9 +169,8 @@ public class PlayerPresenter : MonoBehaviour
 
     private void Respawn()
     {
-        // TODO: to be implemented
-        // update the model
-        // update game object
+        gameObject.SetActive(true);
+        model.Respawn();
     }
 
     // from model
@@ -183,7 +182,13 @@ public class PlayerPresenter : MonoBehaviour
 
     private void OnDied(object sender, Team team)
     {
-        // TODO
+        gameObject.SetActive(false);
+
+        // The enemy team gets a point
+        GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
+
+        // Respawn after a delay
+        DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, Respawn);
     }
 }
 
