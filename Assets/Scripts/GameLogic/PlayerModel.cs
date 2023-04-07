@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerState
@@ -41,15 +39,6 @@ public class PlayerState
         canModifyPortal = true;
         canActivatePortal = true;
     }
-
-    public void InterruptAll()
-    {
-        isShooting = false;
-        isChangingBullet = false;
-        isPlacingBomb = false;
-        isModifyingPortal = false;
-        isActivatingPortal = false;
-    }
 }
 
 public class PlayerModel
@@ -63,13 +52,19 @@ public class PlayerModel
 
     public const int MaxHp = 100;
     public const int MaxAmmo = 30;
-    public const int GunDamage = 10;
-    public const float ShootInterval = 0.1f; // seconds
+    public const int MaxBombCount = 1;
+
+    public const float ShootInterval = 0.1f;
+    public const float ChangeBulletTime = 0.5f;
+    public const float RespawnTime = 8.0f;
+
+    public const int BulletDamage = 10;
+    public const float BulletRange = 10.0f;
     // max distance between the player and the cell where the player can place a bomb
     public const float MaxBombDistance = 5.0f;
 
     public event EventHandler<Vector2> PositionChangedEvent;
-    public event EventHandler DiedEvent;
+    public event EventHandler<Team> DiedEvent;
 
     public int id
     { get; private set; } // unique for each player
@@ -77,10 +72,9 @@ public class PlayerModel
     public PlayerState state { get; private set; } = new PlayerState();
     public int hp = MaxHp;
     public int ammo = MaxAmmo;
+    public int bombCount = MaxBombCount;
     public Vector2 position;
     public float rotation = 0.0f; // degree
-
-    public float respawnTimeLeft = 0.0f; // seconds. 0 means not respawning
 
     public static Vector2 GetPositionFromCellPosition(Vector2Int cell)
     {
