@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 using PortalPattern = System.UInt32;
@@ -17,6 +14,13 @@ public class PortalModel
     public PortalModel(Vector2Int position)
     {
         this.position = position;
+    }
+
+    public bool isInPortal(Vector2 position)
+    {
+        // a portal is 1x2
+        return position.x >= this.position.x && position.x < this.position.x + 1
+            && position.y >= this.position.y && position.y < this.position.y + 2;
     }
 
     public void AddLine(LineInPortalPattern line)

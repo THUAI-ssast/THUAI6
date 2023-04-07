@@ -31,7 +31,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public override void Init()
     {
-        model = new MapModel();
+        model = MapModel.Instance;
 
         // Initialize map view
         _view = GetComponent<MapView>();
@@ -41,7 +41,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
         foreach (PlayerModel playerModel in model.players)
         {
-            GameObject playerObject = Instantiate(playerPrefab);
+            GameObject playerObject = Instantiate(playerPrefab, transform);
             PlayerPresenter playerPresenter = playerObject.GetComponent<PlayerPresenter>();
             playerPresenter.SetModel(playerModel);
 
@@ -58,7 +58,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     public void PlaceBomb(Vector2Int target)
     {
         // Instantiate a bomb
-        GameObject bombObject = Instantiate(bombPrefab);
+        GameObject bombObject = Instantiate(bombPrefab, transform);
         BombPresenter bombPresenter = bombObject.GetComponent<BombPresenter>();
         BombModel bombModel = new BombModel(target);
         bombPresenter.SetModelAndActivate(bombModel);
@@ -94,10 +94,9 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     public void ActivatePortal(PortalModel portal, PortalModel destination)
     {
         // Instantiate a portal
-        GameObject portalObject = Instantiate(portalPrefab);
+        GameObject portalObject = Instantiate(portalPrefab, transform);
         PortalPresenter portalPresenter = portalObject.GetComponent<PortalPresenter>();
         portalPresenter.SetModelAndActivate(portal, destination.position);
-
     }
 
     // from MapModel

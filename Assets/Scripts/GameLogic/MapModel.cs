@@ -31,61 +31,31 @@ public class MapModel : Singleton<MapModel>
     public List<BombModel> bombs { get; private set; } = new List<BombModel>();
     public Dictionary<PortalPattern, List<PortalModel>> portalsClassifiedByPattern { get; private set; } = new Dictionary<PortalPattern, List<PortalModel>>();
 
-    public MapModel()
+    private MapModel()
     {
         // initialize map
-        int[,] initialMap = new int[,]
+        int[,] initialMap = new int[Width, Height]
         {
-{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0},
-{0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0},
-{1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1},
-{0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
-{0,0,0,0,1,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0},
-{0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0},
-{0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,1,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-{0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1,1,0,1,1,0,0},
-{0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1},
-{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0},
-{0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
-{1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
-{0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
-{0,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
-{0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0},
-{0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0},
-{0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
-{0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0}
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
+            {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1},
+            {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1},
+            {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+            {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
         };
         for (int i = 0; i < map.GetLength(0); i++)
         {
@@ -125,6 +95,37 @@ public class MapModel : Singleton<MapModel>
         } while (true);
     }
 
+    public bool IsInMap(Vector2Int cellPosition)
+    {
+        return cellPosition.x >= 0 && cellPosition.x < map.GetLength(0) && cellPosition.y >= 0 && cellPosition.y < map.GetLength(1);
+    }
+
+    public bool IsRoad(Vector2Int cellPosition)
+    {
+        return IsInMap(cellPosition) && !map[cellPosition.x, cellPosition.y].isObstacle;
+    }
+
+    public bool CanModifyPortalLine(Vector2Int cellPosition, Direction direction)
+    {
+        if (!IsRoad(cellPosition))
+        {
+            return false;
+        }
+        switch (direction)
+        {
+            case Direction.Up:
+                return IsRoad(cellPosition + Vector2Int.up);
+            case Direction.Down:
+                return IsRoad(cellPosition + Vector2Int.down);
+            case Direction.Left:
+                return IsRoad(cellPosition + Vector2Int.left);
+            case Direction.Right:
+                return IsRoad(cellPosition + Vector2Int.right);
+            default:
+                return false;
+        }
+    }
+
     public void PlaceBomb(BombModel bomb)
     {
         bombs.Add(bomb);
@@ -139,60 +140,53 @@ public class MapModel : Singleton<MapModel>
 
     public void AddLine(Vector2Int cellPosition, Direction direction)
     {
+        if (!CanModifyPortalLine(cellPosition, direction))
+        {
+            return;
+        }
+
         List<PortalModel> portalsModified = new List<PortalModel>();
 
         Action<PortalModel, LineInPortalPattern> AddLineForPortal = (portal, line) =>
         {
-            PortalPattern pattern = portal.pattern;
-            if (!portalsClassifiedByPattern.ContainsKey(pattern))
+            PortalPattern oldPattern = portal.pattern;
+            if (oldPattern != 0)
             {
-                portalsClassifiedByPattern.Add(pattern, new List<PortalModel>());
+                portalsClassifiedByPattern[oldPattern].Remove(portal);
             }
-            portalsClassifiedByPattern[pattern].Remove(portal);
             portal.AddLine(line);
-            portalsClassifiedByPattern[pattern].Add(portal);
+            PortalPattern newPattern = portal.pattern;
+            if (!portalsClassifiedByPattern.ContainsKey(newPattern))
+            {
+                portalsClassifiedByPattern.Add(newPattern, new List<PortalModel>());
+            }
+            portalsClassifiedByPattern[newPattern].Add(portal);
             portalsModified.Add(portal);
         };
 
         // add the line for all related portals
-        // lines can not be near obstacles
+        AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
         switch (direction)
         {
             case Direction.Up:
                 int currentX = cellPosition.x;
                 int currentY = cellPosition.y + 1;
-                if (currentY < map.GetLength(1) && !map[currentX, currentY].isObstacle)
-                {
-                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
-                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
-                }
+                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
                 break;
             case Direction.Down:
                 currentX = cellPosition.x;
                 currentY = cellPosition.y - 1;
-                if (currentY >= 0 && !map[currentX, currentY].isObstacle)
-                {
-                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
-                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
-                }
+                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
                 break;
             case Direction.Left:
                 currentX = cellPosition.x - 1;
                 currentY = cellPosition.y;
-                if (currentX >= 0 && !map[currentX, currentY].isObstacle)
-                {
-                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
-                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
-                }
+                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
                 break;
             case Direction.Right:
                 currentX = cellPosition.x + 1;
                 currentY = cellPosition.y;
-                if (currentX < map.GetLength(0) && !map[currentX, currentY].isObstacle)
-                {
-                    AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
-                    AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
-                }
+                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
                 break;
         }
 
@@ -201,21 +195,30 @@ public class MapModel : Singleton<MapModel>
 
     public void RemoveLine(Vector2Int cellPosition, Direction direction)
     {
+        if (!CanModifyPortalLine(cellPosition, direction))
+        {
+            return;
+        }
+
         List<PortalModel> portalsModified = new List<PortalModel>();
 
         Action<PortalModel, LineInPortalPattern> RemoveLineForPortal = (portal, line) =>
         {
-            PortalPattern pattern = portal.pattern;
-            if (!portalsClassifiedByPattern.ContainsKey(pattern))
-            {
-                portalsClassifiedByPattern.Add(pattern, new List<PortalModel>());
-            }
-            portalsClassifiedByPattern[pattern].Remove(portal);
+            PortalPattern oldPattern = portal.pattern;
+            portalsClassifiedByPattern[oldPattern].Remove(portal);
             portal.RemoveLine(line);
-            portalsClassifiedByPattern[pattern].Add(portal);
+            PortalPattern newPattern = portal.pattern;
+            if (newPattern != 0)
+            {
+                if (!portalsClassifiedByPattern.ContainsKey(newPattern))
+                {
+                    portalsClassifiedByPattern.Add(newPattern, new List<PortalModel>());
+                }
+                portalsClassifiedByPattern[newPattern].Add(portal);
+            }
             portalsModified.Add(portal);
         };
-        
+
         // remove the line for all related portals
         RemoveLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
         switch (direction)
@@ -223,37 +226,25 @@ public class MapModel : Singleton<MapModel>
             case Direction.Up:
                 int currentX = cellPosition.x;
                 int currentY = cellPosition.y + 1;
-                if (currentY < map.GetLength(1) && !map[currentX, currentY].isObstacle)
-                {
-                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
-                }
+                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
                 break;
             case Direction.Down:
                 currentX = cellPosition.x;
                 currentY = cellPosition.y - 1;
-                if (currentY >= 0 && !map[currentX, currentY].isObstacle)
-                {
-                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
-                }
+                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
                 break;
             case Direction.Left:
                 currentX = cellPosition.x - 1;
                 currentY = cellPosition.y;
-                if (currentX >= 0 && !map[currentX, currentY].isObstacle)
-                {
-                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
-                }
+                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
                 break;
             case Direction.Right:
                 currentX = cellPosition.x + 1;
                 currentY = cellPosition.y;
-                if (currentX < map.GetLength(0) && !map[currentX, currentY].isObstacle)
-                {
-                    RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
-                }
+                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
                 break;
         }
-        
+
         PortalLineModifiedEvent?.Invoke(this, portalsModified);
     }
 

@@ -8,7 +8,7 @@ public class GameModel : Singleton<GameModel>
     public int[] teamScore { get; private set; }
     public float timeLeft { get; private set; }
 
-    public GameModel()
+    private GameModel()
     {
         teamScore = new int[TeamCount]; // all 0
         timeLeft = GameTime;
