@@ -160,31 +160,70 @@ public class PlayerPresenter : MonoBehaviour
         });
     }
 
-    public bool TryAddLine(Vector2Int target, LineInPortalPattern line)
+    public bool TryAddLine(Direction direction)
     {
+        // target is valid
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        if (!canModifyPortalLine) return false;
+        // player is ready to add line
+        if (!model.state.canModifyPortal) return false;
+        AddLine(direction);
         return true;
     }
 
-    public void AddLine(Vector2Int target, LineInPortalPattern line)
+    public void AddLine(Direction direction)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new AddLineAction(direction) });
+        model.ModifyPortalBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
+        {
+            MapPresenter.Instance.AddLine(Vector2Int.FloorToInt(transform.position), direction);
+            model.ModifyPortalEnd();
+        });
     }
 
-    public bool TryRemoveLine(Vector2Int target, LineInPortalPattern line)
+    public bool TryRemoveLine(Direction direction)
     {
+        // target is valid
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        if (!canModifyPortalLine) return false;
+        // player is ready to remove line
+        if (!model.state.canModifyPortal) return false;
+        RemoveLine(direction);
         return true;
     }
 
-    public void RemoveLine(Vector2Int target, LineInPortalPattern line)
+    public void RemoveLine(Direction direction)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new RemoveLineAction(direction) });
+        model.ModifyPortalBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
+        {
+            MapPresenter.Instance.RemoveLine(Vector2Int.FloorToInt(transform.position), direction);
+            model.ModifyPortalEnd();
+        });
     }
 
-    public bool TryActivatePortal(Vector2Int target, Vector2Int destination)
+    public bool TryActivatePortal(Vector2Int destination)
     {
+        // target is valid
+        bool canActivatePortal = MapModel.Instance.CanActivatePortal(Vector2Int.FloorToInt(transform.position), destination);
+        if (!canActivatePortal) return false;
+        // player is ready to activate portal
+        if (!model.state.canActivatePortal) return false;
+        ActivatePortal(destination);
         return true;
     }
 
-    public void ActivatePortal(Vector2Int target, Vector2Int destination)
+    public void ActivatePortal(Vector2Int destination)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ActivatePortalAction(destination) });
+        model.ActivatePortal();
+        // Activate portal
+        Vector2Int positionInt = Vector2Int.FloorToInt(transform.position);
+        PortalModel portal1 = MapModel.Instance.map[positionInt.x, positionInt.y].portal;
+        PortalModel portal2 = MapModel.Instance.map[destination.x, destination.y].portal;
+        MapPresenter.Instance.ActivatePortal(portal1, portal2);
     }
 
     private void ShootBullet()
@@ -277,25 +316,32 @@ public class PlaceBombAction
 public class AddLineAction
 {
     public string type = "AddLine";
-    public Vector2Int target;
-    public LineInPortalPattern line;
+    public Direction direction;
 
-    public AddLineAction(Vector2Int target, LineInPortalPattern line)
+    public AddLineAction(Direction direction)
     {
-        this.target = target;
-        this.line = line;
+        this.direction = direction;
     }
 }
 
 public class RemoveLineAction
 {
     public string type = "RemoveLine";
-    public Vector2Int target;
-    public LineInPortalPattern line;
+    public Direction direction;
 
-    public RemoveLineAction(Vector2Int target, LineInPortalPattern line)
+    public RemoveLineAction(Direction direction)
     {
-        this.target = target;
-        this.line = line;
+        this.direction = direction;
+    }
+}
+
+public class ActivatePortalAction
+{
+    public string type = "ActivatePortal";
+    public Vector2Int destination;
+
+    public ActivatePortalAction(Vector2Int destination)
+    {
+        this.destination = destination;
     }
 }

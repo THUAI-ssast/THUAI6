@@ -56,6 +56,8 @@ public class PlayerModel
 
     public const float ShootInterval = 0.1f;
     public const float ChangeBulletTime = 0.5f;
+    public const float PlaceBombTime = 2.0f;
+    public const float ModifyPortalTime = 1.0f;
     public const float RespawnTime = 8.0f;
 
     public const int BulletDamage = 10;
@@ -160,6 +162,25 @@ public class PlayerModel
         bombCount--;
         state.isPlacingBomb = false;
         state.EnableAll();
+    }
+    
+    public void ModifyPortalBegin()
+    {
+        state.isModifyingPortal = true;
+        state.DisableAll();
+    }
+
+    public void ModifyPortalEnd()
+    {
+        state.isModifyingPortal = false;
+        state.EnableAll();
+    }
+
+    public void ActivatePortal()
+    {
+        // Currently, the portal is activated immediately
+        state.isActivatingPortal = true;
+        state.isActivatingPortal = false;
     }
 
     private void Die()

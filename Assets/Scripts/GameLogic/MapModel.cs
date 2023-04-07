@@ -126,6 +126,18 @@ public class MapModel : Singleton<MapModel>
         }
     }
 
+    public bool CanActivatePortal(Vector2Int cellPosition, Vector2Int destination)
+    {
+        if (!(IsRoad(cellPosition) && IsRoad(destination)))
+        {
+            return false;
+        }
+        // compare the pattern of the two portals
+        PortalModel portal1 = map[cellPosition.x, cellPosition.y].portal;
+        PortalModel portal2 = map[destination.x, destination.y].portal;
+        return portal1.pattern == portal2.pattern;
+    }
+
     public void PlaceBomb(BombModel bomb)
     {
         bombs.Add(bomb);
