@@ -88,6 +88,16 @@ public class PlayerModel
         this.position = position;
     }
 
+    public void Respawn()
+    {
+        hp = MaxHp;
+        ammo = MaxAmmo;
+        bombCount = MaxBombCount;
+        state.isAlive = true;
+        state.EnableAll();
+
+        SetPosition(GetPositionFromCellPosition(MapModel.Instance.GetRandomPosition()));
+    }    
 
     public void SetPosition(Vector2 position)
     {
@@ -103,10 +113,10 @@ public class PlayerModel
 
     public void Hurt(int damage)
     {
-        // TODO: to be implemented
-
+        hp -= damage;
         if (hp <= 0)
         {
+            hp = 0;
             Die();
         }
     }
@@ -114,13 +124,9 @@ public class PlayerModel
     private void Die()
     {
         state.isAlive = false;
-        state.InterruptAll();
         state.DisableAll();
 
-        // The enemy team gets a point
-        GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
-
-        DiedEvent?.Invoke(this, EventArgs.Empty);
+        DiedEvent?.Invoke(this, team);
     }
 
 }
