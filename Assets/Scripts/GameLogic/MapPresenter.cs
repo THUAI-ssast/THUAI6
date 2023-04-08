@@ -29,6 +29,8 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     private GameObject bombPrefab;
     private GameObject portalPrefab;
 
+    private List<PlayerPresenter> _playerPresenters; // to control players
+
     public override void Init()
     {
         model = MapModel.Instance;
@@ -39,16 +41,60 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
         // Instantiate player game objects
         playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+        _playerPresenters = new List<PlayerPresenter>();
         foreach (PlayerModel playerModel in model.players)
         {
             GameObject playerObject = Instantiate(playerPrefab, transform);
             PlayerPresenter playerPresenter = playerObject.GetComponent<PlayerPresenter>();
             playerPresenter.SetModel(playerModel);
+
+            _playerPresenters.Add(playerPresenter);
         }
 
         // preload prefabs
         bombPrefab = Resources.Load<GameObject>("Prefabs/Bomb");
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
+    }
+
+    public void InterpretAction(int playerId, dynamic action)
+    {
+        PlayerPresenter playerPresenter = _playerPresenters[playerId];
+        try
+        {
+            switch (action.type)
+            {
+                case "Move":
+                    playerPresenter.TryMove((ForwardOrBackward)action.direction);
+                    break;
+                case "Rotate":
+                    playerPresenter.TryRotate((LeftOrRight)action.direction);
+                    break;
+                case "Shoot":
+                    playerPresenter.TryShoot();
+                    break;
+                case "ChangeBullet":
+                    playerPresenter.TryChangeBullet();
+                    break;
+                case "PlaceBomb":
+                    playerPresenter.TryPlaceBomb(new Vector2Int(action.position.x, action.position.y));
+                    break;
+                case "AddLine":
+                    playerPresenter.TryAddLine((Direction)action.direction);
+                    break;
+                case "RemoveLine":
+                    playerPresenter.TryRemoveLine((Direction)action.direction);
+                    break;
+                case "ActivatePortal":
+                    playerPresenter.TryActivatePortal(new Vector2Int(action.position.x, action.position.y));
+                    break;
+                case "Idle":
+                    break;
+            }
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError($"Player {playerId} tried to perform an invalid action: {action}");
+        }
     }
 
     public void PlaceBomb(Vector2Int target)
