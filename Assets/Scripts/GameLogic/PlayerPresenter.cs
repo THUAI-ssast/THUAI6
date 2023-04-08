@@ -135,46 +135,95 @@ public class PlayerPresenter : MonoBehaviour
 
     public bool TryPlaceBomb(Vector2Int target)
     {
+        // target is valid
+        bool isTargetValid = MapModel.Instance.IsRoad(target);
+        if (!isTargetValid) return false;
+        // target is in range
+        float distance = Vector2.Distance(target, model.position);
+        if (distance > PlayerModel.MaxBombDistance) return false;
+        // player is ready to place bomb
+        bool toolsNotReady = model.bombCount <= 0;
+        if (!model.state.canPlaceBomb || toolsNotReady) return false;
+
+        PlaceBomb(target);
         return true;
     }
 
     public void PlaceBomb(Vector2Int target)
     {
-        // Something before the bomb is placed. Mainly, update player state
-        // TODO
-
-        // Place the bomb
-        MapPresenter.Instance.PlaceBomb(target);
-
-        // Something after the bomb is placed
-        // TODO
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new PlaceBombAction(target) });
+        model.PlaceBombBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.PlaceBombTime, () =>
+        {
+            MapPresenter.Instance.PlaceBomb(Vector2Int.FloorToInt(transform.position));
+            model.PlaceBombEnd();
+        });
     }
 
-    public bool TryAddLine(Vector2Int target, LineInPortalPattern line)
+    public bool TryAddLine(Direction direction)
     {
+        // target is valid
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        if (!canModifyPortalLine) return false;
+        // player is ready to add line
+        if (!model.state.canModifyPortal) return false;
+        AddLine(direction);
         return true;
     }
 
-    public void AddLine(Vector2Int target, LineInPortalPattern line)
+    public void AddLine(Direction direction)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new AddLineAction(direction) });
+        model.ModifyPortalBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
+        {
+            MapPresenter.Instance.AddLine(Vector2Int.FloorToInt(transform.position), direction);
+            model.ModifyPortalEnd();
+        });
     }
 
-    public bool TryRemoveLine(Vector2Int target, LineInPortalPattern line)
+    public bool TryRemoveLine(Direction direction)
     {
+        // target is valid
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        if (!canModifyPortalLine) return false;
+        // player is ready to remove line
+        if (!model.state.canModifyPortal) return false;
+        RemoveLine(direction);
         return true;
     }
 
-    public void RemoveLine(Vector2Int target, LineInPortalPattern line)
+    public void RemoveLine(Direction direction)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new RemoveLineAction(direction) });
+        model.ModifyPortalBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
+        {
+            MapPresenter.Instance.RemoveLine(Vector2Int.FloorToInt(transform.position), direction);
+            model.ModifyPortalEnd();
+        });
     }
 
-    public bool TryActivatePortal(Vector2Int target, Vector2Int destination)
+    public bool TryActivatePortal(Vector2Int destination)
     {
+        // target is valid
+        bool canActivatePortal = MapModel.Instance.CanActivatePortal(Vector2Int.FloorToInt(transform.position), destination);
+        if (!canActivatePortal) return false;
+        // player is ready to activate portal
+        if (!model.state.canActivatePortal) return false;
+        ActivatePortal(destination);
         return true;
     }
 
-    public void ActivatePortal(Vector2Int target, Vector2Int destination)
+    public void ActivatePortal(Vector2Int destination)
     {
+        PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ActivatePortalAction(destination) });
+        model.ActivatePortal();
+        // Activate portal
+        Vector2Int positionInt = Vector2Int.FloorToInt(transform.position);
+        PortalModel portal1 = MapModel.Instance.map[positionInt.x, positionInt.y].portal;
+        PortalModel portal2 = MapModel.Instance.map[destination.x, destination.y].portal;
+        MapPresenter.Instance.ActivatePortal(portal1, portal2);
     }
 
     private void ShootBullet()
@@ -267,25 +316,32 @@ public class PlaceBombAction
 public class AddLineAction
 {
     public string type = "AddLine";
-    public Vector2Int target;
-    public LineInPortalPattern line;
+    public Direction direction;
 
-    public AddLineAction(Vector2Int target, LineInPortalPattern line)
+    public AddLineAction(Direction direction)
     {
-        this.target = target;
-        this.line = line;
+        this.direction = direction;
     }
 }
 
 public class RemoveLineAction
 {
     public string type = "RemoveLine";
-    public Vector2Int target;
-    public LineInPortalPattern line;
+    public Direction direction;
 
-    public RemoveLineAction(Vector2Int target, LineInPortalPattern line)
+    public RemoveLineAction(Direction direction)
     {
-        this.target = target;
-        this.line = line;
+        this.direction = direction;
+    }
+}
+
+public class ActivatePortalAction
+{
+    public string type = "ActivatePortal";
+    public Vector2Int destination;
+
+    public ActivatePortalAction(Vector2Int destination)
+    {
+        this.destination = destination;
     }
 }
