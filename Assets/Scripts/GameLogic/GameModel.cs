@@ -7,6 +7,7 @@ public class GameModel : Singleton<GameModel>
 
     public int[] teamScore { get; private set; }
     public float timeLeft { get; private set; }
+    public int frame { get; private set; }
 
     private GameModel()
     {
@@ -17,6 +18,7 @@ public class GameModel : Singleton<GameModel>
     public void UpdateTime(float deltaTime)
     {
         timeLeft -= deltaTime;
+        frame++;
     }
 
     public void AddScore(Team team, int score)

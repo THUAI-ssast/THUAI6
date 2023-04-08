@@ -72,11 +72,10 @@ public class Recorder : MonoSingleton<Recorder>
         PlayerModel player = args.player;
         dynamic action = args.action;
 
-        // if the last process item is not the current time, create a new process item
-        float timeLeft = _game.timeLeft;
-        if (process.Count == 0 || process[process.Count - 1].timeLeft != timeLeft)
+        int frame = _game.frame;
+        if (process.Count == 0 || process[process.Count - 1].frame != frame)
         {
-            CreateNewProcessItem(timeLeft);
+            CreateNewProcessItem(frame);
         }
 
         var actions = process[process.Count - 1].actions;
@@ -85,7 +84,6 @@ public class Recorder : MonoSingleton<Recorder>
             playerId = player.id,
             action = action
         });
-
     }
 
     void OnGameEnd(object sender, EventArgs args)
@@ -94,11 +92,11 @@ public class Recorder : MonoSingleton<Recorder>
         ExportToJson();
     }
 
-    private void CreateNewProcessItem(float timeLeft)
+    private void CreateNewProcessItem(int frame)
     {
         process.Add(new
         {
-            timeLeft = timeLeft,
+            frame = frame,
             actions = new List<dynamic>()
         });
     }
