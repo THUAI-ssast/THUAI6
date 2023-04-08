@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,35 +23,47 @@ public class Recorder : MonoSingleton<Recorder>
         actions = new List<dynamic>();
     }
 
-    void Start()
+    void OnEnable()
     {
         GamePresenter.GameStartEvent += OnGameStart;
-        // PlayerPresenter.PlayerActionEvent += OnPlayerAction;
-        AiPlayer.AiPlayerRecordsEvent += OnAiPlayerRecords;
+        PlayerPresenter.PlayerActionEvent += OnPlayerAction;
         GamePresenter.GameEndEvent += OnGameEnd;
     }
 
     void OnDisable()
     {
         GamePresenter.GameStartEvent -= OnGameStart;
-        // PlayerPresenter.PlayerActionEvent -= OnPlayerAction;
-        AiPlayer.AiPlayerRecordsEvent -= OnAiPlayerRecords;
+        PlayerPresenter.PlayerActionEvent -= OnPlayerAction;
         GamePresenter.GameStartEvent -= OnGameEnd;
-    }
-
-    void OnAiPlayerRecords(object sender, AiPlayerRecordsEventArgs args)
-    {
-        actions.Add(args);
     }
 
     void OnGameStart(object sender, EventArgs args)
     {
-        var map = MapModel.Instance.map;
-        var players = MapModel.Instance.players;
+        Cell[,] map = MapModel.Instance.map;
+        List<PlayerModel> players = MapModel.Instance.players;
+
+        int[,] mapRecord = new int[map.GetLength(0), map.GetLength(1)];
+        for (int i = 0; i < map.GetLength(0); i++)
+        {
+            for (int j = 0; j < map.GetLength(1); j++)
+            {
+                mapRecord[i, j] = map[i, j].isObstacle ? 1 : 0;
+            }
+        }
+        List<dynamic> playersRecord = new List<dynamic>();
+        foreach (PlayerModel player in players)
+        {
+            playersRecord.Add(new
+            {
+                id = player.id,
+                position = new float[] { player.position.x, player.position.y },
+                rotation = player.rotation
+            });
+        }
         init = new
         {
-            map = map,
-            players = players
+            map = mapRecord,
+            players = playersRecord
         };
     }
 
@@ -114,7 +125,7 @@ public class Recorder : MonoSingleton<Recorder>
         string jsonString = JsonConvert.SerializeObject(this, Formatting.None, settings);
 
         // save the data to a json file
-        string path = Application.dataPath + "/../record.json";
+        string path = Application.dataPath + "/record.json";
         System.IO.File.WriteAllText(path, jsonString);
     }
 }
