@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GamePresenter : MonoSingleton<GamePresenter>
@@ -42,5 +40,12 @@ public class GamePresenter : MonoSingleton<GamePresenter>
         GameEndEvent?.Invoke(this, EventArgs.Empty);
 
         _view?.ShowResult(_model.teamScore);
+        
+        if (!ProgramManager.Instance.configObject.render)
+        {
+            // print the result and quit
+            Console.WriteLine(_model.teamScore[0] + " " + _model.teamScore[1]);
+            Application.Quit();
+        }
     }
 }
