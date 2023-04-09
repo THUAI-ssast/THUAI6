@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BombView : MonoBehaviour
@@ -11,18 +9,15 @@ public class BombView : MonoBehaviour
     private Animator animator;
     public Sprite explosionSprite;
 
-
-
-    // TODO: to be implemented
-
-    void Awake(){
+    void Awake()
+    {
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
     }
 
     public void OnExplode()
     {
-        sr.sprite=explosionSprite;
-        animator.enabled=true;
+        sr.sprite = explosionSprite;
+        animator.enabled = true;
     }
 }
