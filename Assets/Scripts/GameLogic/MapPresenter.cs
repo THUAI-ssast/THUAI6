@@ -132,9 +132,8 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public void SetBombPosition(BombModel bomb, Vector2Int target)
     {
-        model.RemoveBomb(bomb);
+        model.SetBombPosition(bomb, target);
         bomb.SetPosition(target);
-        model.PlaceBomb(bomb);
     }
 
     /// <summary>

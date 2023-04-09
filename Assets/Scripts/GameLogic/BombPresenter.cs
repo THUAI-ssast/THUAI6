@@ -44,8 +44,7 @@ public class BombPresenter : MonoBehaviour
     public void SetModelAndActivate(BombModel model)
     {
         this.model = model;
-
-        transform.position = new Vector3(model.position.x, model.position.y, 0);
+        OnPositionChanged(null, model.position);
 
         Activate();
     }

@@ -10,11 +10,11 @@ public struct Cell
     public PortalModel portal;
     public List<BombModel> bombs;
 
-    public Cell(bool isObstacle, PortalModel portal = null, List<BombModel> bombs = null)
+    public Cell(bool isObstacle = false)
     {
         this.isObstacle = isObstacle;
-        this.portal = portal;
-        this.bombs = bombs;
+        this.portal = null;
+        this.bombs = null;
     }
 }
 
@@ -67,7 +67,9 @@ public class MapModel : Singleton<MapModel>
                 }
                 else
                 {
+                    map[i, j].isObstacle = false;
                     map[i, j].portal = new PortalModel(new Vector2Int(i, j));
+                    map[i, j].bombs = new List<BombModel>();
                 }
             }
         }
@@ -154,6 +156,12 @@ public class MapModel : Singleton<MapModel>
     {
         bombs.Remove(bomb);
         map[bomb.position.x, bomb.position.y].bombs.Remove(bomb);
+    }
+
+    public void SetBombPosition(BombModel bomb, Vector2Int newPosition)
+    {
+        map[bomb.position.x, bomb.position.y].bombs.Remove(bomb);
+        map[newPosition.x, newPosition.y].bombs.Add(bomb);
     }
 
     public void AddLine(Vector2Int cellPosition, Direction direction)
