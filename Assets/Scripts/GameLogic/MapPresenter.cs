@@ -29,6 +29,9 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     private GameObject bombPrefab;
     private GameObject portalPrefab;
 
+    private List<GameObject> _playerObjects;
+    private List<PlayerPresenter> _playerPresenters; // to control players
+
     public override void Init()
     {
         model = MapModel.Instance;
@@ -39,16 +42,79 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
         // Instantiate player game objects
         playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+        _playerObjects = new List<GameObject>();
+        _playerPresenters = new List<PlayerPresenter>();
         foreach (PlayerModel playerModel in model.players)
         {
             GameObject playerObject = Instantiate(playerPrefab, transform);
             PlayerPresenter playerPresenter = playerObject.GetComponent<PlayerPresenter>();
             playerPresenter.SetModel(playerModel);
+
+            _playerObjects.Add(playerObject);
+            _playerPresenters.Add(playerPresenter);
         }
 
         // preload prefabs
         bombPrefab = Resources.Load<GameObject>("Prefabs/Bomb");
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
+    }
+
+    void Start()
+    {
+        var directions = new Direction[] { Direction.Up, Direction.Down, Direction.Left, Direction.Right };
+        for (int i = 0; i < 15; i++)
+        {
+            AddLine(model.GetRandomPosition(), directions[Random.Range(0, 4)]);
+        }
+    }
+
+    public GameObject GetPlayerObject(int playerId)
+    {
+        return _playerObjects[playerId];
+    }
+
+    public void InterpretAction(int playerId, dynamic action)
+    {
+        PlayerPresenter playerPresenter = _playerPresenters[playerId];
+        try
+        {
+            // Note: the dynamic action is actually a JObject and its values are stored as JValue.
+            // So we need to cast JValue to the correct type.
+            string actionType = (string)action.type;
+            switch (actionType)
+            {
+                case "Move":
+                    playerPresenter.TryMove((ForwardOrBackward)action.direction);
+                    break;
+                case "Rotate":
+                    playerPresenter.TryRotate((LeftOrRight)action.direction);
+                    break;
+                case "Shoot":
+                    playerPresenter.TryShoot();
+                    break;
+                case "ChangeBullet":
+                    playerPresenter.TryChangeBullet();
+                    break;
+                case "PlaceBomb":
+                    playerPresenter.TryPlaceBomb(new Vector2Int((int)action.position.x, (int)action.position.y));
+                    break;
+                case "AddLine":
+                    playerPresenter.TryAddLine((Direction)action.direction);
+                    break;
+                case "RemoveLine":
+                    playerPresenter.TryRemoveLine((Direction)action.direction);
+                    break;
+                case "ActivatePortal":
+                    playerPresenter.TryActivatePortal(new Vector2Int((int)action.position.x, (int)action.position.y));
+                    break;
+                case "Idle":
+                    break;
+            }
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError($"Player {playerId} tried to perform an invalid action: {action}");
+        }
     }
 
     public void PlaceBomb(Vector2Int target)
@@ -67,7 +133,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
     public void SetBombPosition(BombModel bomb, Vector2Int target)
     {
         model.RemoveBomb(bomb);
-        bomb.position = target;
+        bomb.SetPosition(target);
         model.PlaceBomb(bomb);
     }
 

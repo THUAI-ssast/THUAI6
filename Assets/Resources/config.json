@@ -1,0 +1,39 @@
+{
+    "render": true,
+    "timeScale": 1.0,
+    "gameTime": 300.0,
+    "data": {
+        "players": [
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            }
+        ]
+    }
+}

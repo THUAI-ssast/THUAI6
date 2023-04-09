@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +11,7 @@ public class Recorder : MonoSingleton<Recorder>
 {
     public dynamic init { get; private set; }
     public List<dynamic> process { get; private set; }
+    public List<dynamic> actions { get; private set; }
     public int[] result { get; private set; }
 
     private GameModel _game;
@@ -20,9 +20,10 @@ public class Recorder : MonoSingleton<Recorder>
     {
         process = new List<dynamic>();
         _game = GameModel.Instance;
+        actions = new List<dynamic>();
     }
 
-    void Start()
+    void OnEnable()
     {
         GamePresenter.GameStartEvent += OnGameStart;
         PlayerPresenter.PlayerActionEvent += OnPlayerAction;
@@ -38,12 +39,31 @@ public class Recorder : MonoSingleton<Recorder>
 
     void OnGameStart(object sender, EventArgs args)
     {
-        var map = MapModel.Instance.map;
-        var players = MapModel.Instance.players;
+        Cell[,] map = MapModel.Instance.map;
+        List<PlayerModel> players = MapModel.Instance.players;
+
+        int[,] mapRecord = new int[map.GetLength(0), map.GetLength(1)];
+        for (int i = 0; i < map.GetLength(0); i++)
+        {
+            for (int j = 0; j < map.GetLength(1); j++)
+            {
+                mapRecord[i, j] = map[i, j].isObstacle ? 1 : 0;
+            }
+        }
+        List<dynamic> playersRecord = new List<dynamic>();
+        foreach (PlayerModel player in players)
+        {
+            playersRecord.Add(new
+            {
+                id = player.id,
+                position = new float[] { player.position.x, player.position.y },
+                rotation = player.rotation
+            });
+        }
         init = new
         {
-            map = map,
-            players = players
+            map = mapRecord,
+            players = playersRecord
         };
     }
 
@@ -52,11 +72,10 @@ public class Recorder : MonoSingleton<Recorder>
         PlayerModel player = args.player;
         dynamic action = args.action;
 
-        // if the last process item is not the current time, create a new process item
-        float timeLeft = _game.timeLeft;
-        if (process.Count == 0 || process[process.Count - 1].timeLeft != timeLeft)
+        int frame = _game.frame;
+        if (process.Count == 0 || process[process.Count - 1].frame != frame)
         {
-            CreateNewProcessItem(timeLeft);
+            CreateNewProcessItem(frame);
         }
 
         var actions = process[process.Count - 1].actions;
@@ -65,7 +84,6 @@ public class Recorder : MonoSingleton<Recorder>
             playerId = player.id,
             action = action
         });
-
     }
 
     void OnGameEnd(object sender, EventArgs args)
@@ -74,11 +92,11 @@ public class Recorder : MonoSingleton<Recorder>
         ExportToJson();
     }
 
-    private void CreateNewProcessItem(float timeLeft)
+    private void CreateNewProcessItem(int frame)
     {
         process.Add(new
         {
-            timeLeft = timeLeft,
+            frame = frame,
             actions = new List<dynamic>()
         });
     }
@@ -90,7 +108,24 @@ public class Recorder : MonoSingleton<Recorder>
 
     private void ExportToJson()
     {
-        string jsonString = JsonConvert.SerializeObject(this);
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+            {
+                // errors.Add(args.ErrorContext.Error.Message);
+                args.ErrorContext.Handled = true;
+            }
+        };
+        settings.Converters.Add(new Vector2Converter());
+        settings.Converters.Add(new Vector2IntConverter());
+
+        string jsonString = JsonConvert.SerializeObject(new
+        {
+            init = init,
+            process = process,
+            result = result
+        }, Formatting.None, settings);
 
         // save the data to a json file
         string path = Application.dataPath + "/../record.json";
