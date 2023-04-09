@@ -6,7 +6,7 @@ public class BombModel
     // TODO: to be decided
     public const float ExplosionTime = 5.0f;
     public const float ExplosionRadius = 2.0f;
-    public const int ExplosionDamage = 70;
+    public const int ExplosionDamage = 100;
 
     public event EventHandler<Vector2Int> PositionChangedEvent;
 
