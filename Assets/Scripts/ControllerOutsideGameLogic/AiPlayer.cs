@@ -196,8 +196,6 @@ public class AiPlayer : MonoBehaviour
         return observation_str;
     }
 
-
-    static bool first = true;
     private string EncodeRoutineObservation()
     {
         string observation_str = JsonConvert.SerializeObject(new RoutineObservation
@@ -207,12 +205,6 @@ public class AiPlayer : MonoBehaviour
             bombs = MapModel.Instance.bombs,
             portalsClassifiedByPattern = MapModel.Instance.portalsClassifiedByPattern
         }, Formatting.None, settings);
-        // Debug
-        if (first)
-        {
-            System.IO.File.WriteAllText("observation.json", observation_str);
-            first = false;
-        }
         return observation_str;
     }
 }
