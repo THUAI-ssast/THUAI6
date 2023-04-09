@@ -5,8 +5,6 @@ using UnityEngine;
 public class Config
 {
     public bool render;
-    public float timeScale;
-    public float gameTime;
     public dynamic data;
 }
 
@@ -24,32 +22,14 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else
         {
-            // Get `--config` CLI argument
-            string[] args = System.Environment.GetCommandLineArgs();
-            bool hasConfigArg = false;
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "--config")
-                {
-                    string path = args[i + 1];
-                    configString = TryReadCustomConfig(path);
-                    hasConfigArg = true;
-                    break;
-                }
-            }
-            if (!hasConfigArg)
-            {
-                configString = TryReadCustomConfig();
-            }
+            configString = TryReadCustomConfig();
         }
-        configObject = JsonConvert.DeserializeObject<Config>(configString);
+        Config configObject = JsonConvert.DeserializeObject<Config>(configString);
     }
 
     private void Start()
     {
         // Set up the game accordingly
-        Time.timeScale = configObject.timeScale;
-        GameModel.Instance.SetTimeLeft(configObject.gameTime);
         if (!configObject.render)
         {
             Camera.main.enabled = false;

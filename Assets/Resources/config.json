@@ -1,7 +1,39 @@
 {
-    "$schema": "config.schema.json",
     "render": true,
+    "timeScale": 1.0,
+    "gameTime": 300.0,
     "data": {
-        "replayPath": "record.json"
+        "players": [
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            },
+            {
+                "type": "ai",
+                "language": "python",
+                "entryPoint": "SDK-Python/sdk/main.py"
+            }
+        ]
     }
 }
