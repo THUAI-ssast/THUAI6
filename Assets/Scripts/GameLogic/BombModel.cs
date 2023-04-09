@@ -10,14 +10,12 @@ public class BombModel
 
     public event EventHandler<Vector2Int> PositionChangedEvent;
 
-    public Vector2Int position
+    public Vector2Int position { get; private set; }
+
+    public void SetPosition(Vector2Int position)
     {
-        get => position;
-        set
-        {
-            position = value;
-            PositionChangedEvent?.Invoke(this, position);
-        }
+        this.position = position;
+        PositionChangedEvent?.Invoke(this, position);
     }
 
     public BombModel(Vector2Int position)

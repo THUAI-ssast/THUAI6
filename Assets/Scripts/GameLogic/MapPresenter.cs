@@ -59,12 +59,36 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
     }
 
-    void Start()
+    private void Start()
     {
+        Test();
+    }
+
+    private void Test()
+    {
+        // add portal lines
         var directions = new Direction[] { Direction.Up, Direction.Down, Direction.Left, Direction.Right };
         for (int i = 0; i < 15; i++)
         {
             AddLine(model.GetRandomPosition(), directions[Random.Range(0, 4)]);
+        }
+        // activate portals
+        var portals = model.portalsClassifiedByPattern;
+        var portalsToActivate = new List<PortalModel>();
+        foreach (var pattern in portals.Keys)
+        {
+            List<PortalModel> portalsSamePattern = portals[pattern];
+            if (portalsSamePattern.Count >= 2)
+            {
+                ActivatePortal(portalsSamePattern[0], portalsSamePattern[1]);
+                portalsToActivate.Add(portalsSamePattern[0]);
+            }
+        }
+        // bombs
+        for (int i = 0; i < 3; i++)
+        {
+            PlaceBomb(portalsToActivate[i].position);
+            PlaceBomb(model.GetRandomPosition());
         }
     }
 
@@ -132,9 +156,8 @@ public class MapPresenter : MonoSingleton<MapPresenter>
 
     public void SetBombPosition(BombModel bomb, Vector2Int target)
     {
-        model.RemoveBomb(bomb);
+        model.SetBombPosition(bomb, target);
         bomb.SetPosition(target);
-        model.PlaceBomb(bomb);
     }
 
     /// <summary>

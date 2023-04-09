@@ -99,7 +99,7 @@ public class PlayerModel
         state.EnableAll();
 
         SetPosition(GetPositionFromCellPosition(MapModel.Instance.GetRandomPosition()));
-    }    
+    }
 
     public void SetPosition(Vector2 position)
     {

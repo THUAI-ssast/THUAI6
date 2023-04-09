@@ -44,8 +44,7 @@ public class BombPresenter : MonoBehaviour
     public void SetModelAndActivate(BombModel model)
     {
         this.model = model;
-
-        transform.position = new Vector3(model.position.x, model.position.y, 0);
+        OnPositionChanged(null, model.position);
 
         Activate();
     }
@@ -77,6 +76,6 @@ public class BombPresenter : MonoBehaviour
 
     private void OnPositionChanged(object sender, Vector2Int position)
     {
-        transform.position = new Vector3(position.x, position.y, 0);
+        transform.position = new Vector3(position.x + 0.65f, position.y + 0.5f, 0);
     }
 }
