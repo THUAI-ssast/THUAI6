@@ -132,14 +132,14 @@ public class MapModel : Singleton<MapModel>
         {
             return false;
         }
-        
+
         PortalModel portal1 = map[cellPosition.x, cellPosition.y].portal;
-        PortalModel portal2 = map[destination.x, destination.y].portal;
-        // portal mustn't be empty
-        if (portal1.pattern == 0)
+        // Check the origin portal
+        if (portal1.pattern == 0 || portal1.isBeingUsed)
         {
             return false;
         }
+        PortalModel portal2 = map[destination.x, destination.y].portal;
         // pattern of two portals must be the same
         return portal1.pattern == portal2.pattern;
     }
