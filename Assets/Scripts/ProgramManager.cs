@@ -5,6 +5,8 @@ using UnityEngine;
 public class Config
 {
     public bool render;
+    public float timeScale;
+    public float gameTime;
     public dynamic data;
 }
 
@@ -30,6 +32,8 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     private void Start()
     {
         // Set up the game accordingly
+        Time.timeScale = configObject.timeScale;
+        GameModel.Instance.SetTimeLeft(configObject.gameTime);
         if (!configObject.render)
         {
             Camera.main.enabled = false;
