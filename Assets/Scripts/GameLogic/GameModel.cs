@@ -1,7 +1,6 @@
 public class GameModel : Singleton<GameModel>
 {
-    // TODO: to be decided
-    public const float GameTime = 5.0f; // seconds
+    public const float DefaultGameTime = 300.0f;
     public const int PlayerCountEachTeam = 3;
     public const int TeamCount = 2;
 
@@ -12,7 +11,13 @@ public class GameModel : Singleton<GameModel>
     private GameModel()
     {
         teamScore = new int[TeamCount]; // all 0
-        timeLeft = GameTime;
+        // It will be overwritten by the config file.
+        timeLeft = DefaultGameTime;
+    }
+
+    public void SetTimeLeft(float timeLeft)
+    {
+        this.timeLeft = timeLeft;
     }
 
     public void UpdateTime(float deltaTime)
