@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerState
@@ -41,35 +39,34 @@ public class PlayerState
         canModifyPortal = true;
         canActivatePortal = true;
     }
-
-    public void InterruptAll()
-    {
-        isShooting = false;
-        isChangingBullet = false;
-        isPlacingBomb = false;
-        isModifyingPortal = false;
-        isActivatingPortal = false;
-    }
 }
 
 public class PlayerModel
 {
     // const properties that same for all players
     // TODO: to be decided
-    public const float RespawnTime = 5.0f; // seconds
-    public const float Speed = 1.0f; // per second
-    public const float RotationSpeed = 600.0f; // degree per second
-    public const int MaxHp = 100;
-    public const int MaxAmmo = 30;
-    public const int GunDamage = 10;
-    public const float ShootInterval = 0.1f; // seconds
-    // max distance between the player and the cell where the player can place a bomb
-    public const float MaxBombDistance = 5.0f;
+    // unit: meter, second, degree
     public const float MaxVelocity = 4.0f;
     public const float Acceleration = 10.0f;
+    public const float RotationSpeed = 600.0f;
+
+    public const int MaxHp = 100;
+    public const int MaxAmmo = 30;
+    public const int MaxBombCount = 1;
+
+    public const float ShootInterval = 0.1f;
+    public const float ChangeBulletTime = 0.5f;
+    public const float PlaceBombTime = 2.0f;
+    public const float ModifyPortalTime = 1.0f;
+    public const float RespawnTime = 8.0f;
+
+    public const int BulletDamage = 10;
+    public const float BulletRange = 10.0f;
+    // max distance between the player and the cell where the player can place a bomb
+    public const float MaxBombDistance = 5.0f;
 
     public event EventHandler<Vector2> PositionChangedEvent;
-    public event EventHandler DiedEvent;
+    public event EventHandler<Team> DiedEvent;
 
     public int id
     { get; private set; } // unique for each player
@@ -77,10 +74,14 @@ public class PlayerModel
     public PlayerState state { get; private set; } = new PlayerState();
     public int hp = MaxHp;
     public int ammo = MaxAmmo;
-    public float respawnTimeLeft = 0.0f; // seconds. 0 means not respawning
+    public int bombCount = MaxBombCount;
     public Vector2 position;
-    // TODO: to be decided. Quaternion may be not a good choice?
-    public Quaternion rotation = Quaternion.identity;
+    public float rotation = 0.0f; // degree
+
+    public static Vector2 GetPositionFromCellPosition(Vector2Int cell)
+    {
+        return new Vector2(cell.x + 0.5f, cell.y + 0.3f);
+    }
 
     public PlayerModel(int id, Team team, Vector2 position)
     {
@@ -89,6 +90,16 @@ public class PlayerModel
         this.position = position;
     }
 
+    public void Respawn()
+    {
+        hp = MaxHp;
+        ammo = MaxAmmo;
+        bombCount = MaxBombCount;
+        state.isAlive = true;
+        state.EnableAll();
+
+        SetPosition(GetPositionFromCellPosition(MapModel.Instance.GetRandomPosition()));
+    }    
 
     public void SetPosition(Vector2 position)
     {
@@ -104,24 +115,80 @@ public class PlayerModel
 
     public void Hurt(int damage)
     {
-        // TODO: to be implemented
-
+        hp -= damage;
         if (hp <= 0)
         {
+            hp = 0;
             Die();
         }
+    }
+
+    public void Shoot()
+    {
+        ammo--;
+        state.isShooting = true;
+        state.canShoot = false;
+        DelayedFunctionCaller.CallAfter(PlayerModel.ShootInterval, () =>
+        {
+            state.isShooting = false;
+            state.canShoot = true;
+        });
+    }
+
+    public void ChangeBullet()
+    {
+        state.isChangingBullet = true;
+        state.DisableAll();
+        state.canMove = true;
+        state.canRotate = true;
+
+        DelayedFunctionCaller.CallAfter(PlayerModel.ChangeBulletTime, () =>
+        {
+            ammo = PlayerModel.MaxAmmo;
+
+            state.isChangingBullet = false;
+            state.EnableAll();
+        });
+    }
+
+    public void PlaceBombBegin()
+    {
+        state.isPlacingBomb = true;
+        state.DisableAll();
+    }
+
+    public void PlaceBombEnd()
+    {
+        bombCount--;
+        state.isPlacingBomb = false;
+        state.EnableAll();
+    }
+    
+    public void ModifyPortalBegin()
+    {
+        state.isModifyingPortal = true;
+        state.DisableAll();
+    }
+
+    public void ModifyPortalEnd()
+    {
+        state.isModifyingPortal = false;
+        state.EnableAll();
+    }
+
+    public void ActivatePortal()
+    {
+        // Currently, the portal is activated immediately
+        state.isActivatingPortal = true;
+        state.isActivatingPortal = false;
     }
 
     private void Die()
     {
         state.isAlive = false;
-        state.InterruptAll();
         state.DisableAll();
 
-        // The enemy team gets a point
-        GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
-
-        DiedEvent?.Invoke(this, EventArgs.Empty);
+        DiedEvent?.Invoke(this, team);
     }
 
 }

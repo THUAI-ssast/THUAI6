@@ -1,14 +1,15 @@
 public class GameModel : Singleton<GameModel>
 {
     // TODO: to be decided
-    public const float GameTime = 120.0f; // seconds
+    public const float GameTime = 5.0f; // seconds
     public const int PlayerCountEachTeam = 3;
     public const int TeamCount = 2;
 
     public int[] teamScore { get; private set; }
     public float timeLeft { get; private set; }
+    public int frame { get; private set; }
 
-    public GameModel()
+    private GameModel()
     {
         teamScore = new int[TeamCount]; // all 0
         timeLeft = GameTime;
@@ -17,6 +18,7 @@ public class GameModel : Singleton<GameModel>
     public void UpdateTime(float deltaTime)
     {
         timeLeft -= deltaTime;
+        frame++;
     }
 
     public void AddScore(Team team, int score)

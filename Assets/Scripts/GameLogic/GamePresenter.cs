@@ -14,7 +14,7 @@ public class GamePresenter : MonoSingleton<GamePresenter>
 
     public override void Init()
     {
-        _model = new GameModel();
+        _model = GameModel.Instance;
         _view = GetComponent<GameView>();
     }
 

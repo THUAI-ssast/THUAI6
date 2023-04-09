@@ -8,6 +8,12 @@ public class Config
     public dynamic data;
 }
 
+public class Config
+{
+    public bool render;
+    public dynamic data;
+}
+
 public class ProgramManager : MonoSingleton<ProgramManager>
 {
     private string configString;
