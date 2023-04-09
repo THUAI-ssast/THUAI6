@@ -52,15 +52,14 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     {
         // Set up the game accordingly
         Time.timeScale = configObject.timeScale;
-        GameModel.Instance.SetTimeLeft(configObject.gameTime);
         if (configObject.data.replayPath != null)
         {
             // TODO: load the replay from the path
         }
         else if (configObject.data.players != null)
         {
-            // set up recorder
             gameObject.AddComponent<Recorder>();
+            GameModel.Instance.SetTimeLeft(configObject.gameTime);
 
             // Set up player controllers
             for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
