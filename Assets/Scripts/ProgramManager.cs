@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Config
 {
-    public bool render;
     public float timeScale;
     public float gameTime;
     public dynamic data;
@@ -13,6 +12,7 @@ public class Config
 public class ProgramManager : MonoSingleton<ProgramManager>
 {
     public Config configObject;
+    public bool isBatchMode = false;
 
     public override void Init()
     {
@@ -24,7 +24,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else
         {
-            // Get `--config` CLI argument
+            
             string[] args = System.Environment.GetCommandLineArgs();
             bool hasConfigArg = false;
             for (int i = 0; i < args.Length; i++)
@@ -34,7 +34,10 @@ public class ProgramManager : MonoSingleton<ProgramManager>
                     string path = args[i + 1];
                     configString = TryReadCustomConfig(path);
                     hasConfigArg = true;
-                    break;
+                }
+                if (args[i] == "-batchmode")
+                {
+                    isBatchMode = true;
                 }
             }
             if (!hasConfigArg)
@@ -50,10 +53,6 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         // Set up the game accordingly
         Time.timeScale = configObject.timeScale;
         GameModel.Instance.SetTimeLeft(configObject.gameTime);
-        if (!configObject.render)
-        {
-            Camera.main.enabled = false;
-        }
         if (configObject.data.replayPath != null)
         {
             // TODO: load the replay from the path
