@@ -41,10 +41,10 @@ public class GamePresenter : MonoSingleton<GamePresenter>
 
         _view?.ShowResult(_model.teamScore);
         
-        if (!ProgramManager.Instance.isBatchMode)
+        if (ProgramManager.Instance.isBatchMode)
         {
             // print the result and quit
-            Console.WriteLine(_model.teamScore[0] + " " + _model.teamScore[1]);
+            // TODO: how to print the result?
             Application.Quit();
         }
     }
