@@ -4,10 +4,10 @@
 
 以所需平台为 target，使用 Unity 打包。打包后的文件夹中包含可执行文件，双击即可运行。
 
-配置文件默认名为 `config.json`，放在可执行文件同目录下。可根据需要修改配置文件，配置文件格式详见 [TODO: config.schema.json]()。也可查看源码中负责这部分的 `ProgramManager.cs` 文件。
+配置文件默认名为 `config.json`，放在可执行文件同目录下。可根据需要修改配置文件，配置文件格式详见 [`config.schema.json`](https://raw.githubusercontent.com/THUAI6-ssast/Game/main/docs/config.schema.json)。也可查看源码中负责这部分的 [`ProgramManager.cs`](https://github.com/THUAI6-ssast/Game/blob/main/Assets/Scripts/ProgramManager.cs) 文件。
 
 > **Note**
-> 似乎 Windows 平台下用命令行启动播放器必须使用 PowerShell，不能使用 cmd 或者 git bash，否则 AI 无法正常运行。
+> 似乎 Windows 平台下用命令行启动播放器必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。
 
 可通过命令行参数 `--config <path>` 指定配置文件路径，路径相对于可执行文件目录。
 
@@ -25,7 +25,7 @@
 
 ### 与AI的通信
 
-播放器启动AI程序，二者通过标准输入输出，使用 JSON 格式通信。
+播放器启动AI程序，二者通过标准输入输出、使用 JSON 格式通信。
 
 ### 关于回放
 
