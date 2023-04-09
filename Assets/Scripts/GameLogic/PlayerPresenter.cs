@@ -218,12 +218,15 @@ public class PlayerPresenter : MonoBehaviour
     public void ActivatePortal(Vector2Int destination)
     {
         PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ActivatePortalAction(destination) });
-        model.ActivatePortal();
-        // Activate portal
-        Vector2Int positionInt = Vector2Int.FloorToInt(transform.position);
-        PortalModel portal1 = MapModel.Instance.map[positionInt.x, positionInt.y].portal;
-        PortalModel portal2 = MapModel.Instance.map[destination.x, destination.y].portal;
-        MapPresenter.Instance.ActivatePortal(portal1, portal2);
+        model.ActivatePortalBegin();
+        DelayedFunctionCaller.CallAfter(PlayerModel.ActivatePortalTime, () =>
+        {
+            Vector2Int positionInt = Vector2Int.FloorToInt(transform.position);
+            PortalModel originPortal = MapModel.Instance.map[positionInt.x, positionInt.y].portal;
+            PortalModel destinationPortal = MapModel.Instance.map[destination.x, destination.y].portal;
+            MapPresenter.Instance.ActivatePortal(originPortal, destinationPortal);
+            model.ActivatePortalEnd();
+        });
     }
 
     private void ShootBullet()
