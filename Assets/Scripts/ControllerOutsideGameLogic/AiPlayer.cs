@@ -1,59 +1,34 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using UnityEngine;
-using Debug = UnityEngine.Debug;
+
 using Newtonsoft.Json;
+using UnityEngine;
 
-class Observation
+using Debug = UnityEngine.Debug;
+using PortalPattern = System.UInt32;
+
+struct StartObservation
 {
-    public MapPresenter map;
-    public bool isGameOver;
-    public int playerId;
-    public int frameCount;
+    public int[,] map;
+    public int myId;
+    public Team myTeam;
 }
 
-public class Vector2Converter : JsonConverter<Vector2>
+struct RoutineObservation
 {
-    public override void WriteJson(JsonWriter writer, Vector2 value, JsonSerializer serializer)
-    {
-        serializer.Serialize(writer, new { x = value.x, y = value.y });
-    }
-
-    public override Vector2 ReadJson(JsonReader reader, System.Type objectType, Vector2 existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        throw new System.NotImplementedException();
-    }
+    public int frame;
+    public List<PlayerModel> players;
+    public List<BombModel> bombs;
+    public Dictionary<PortalPattern, List<PortalModel>> portalsClassifiedByPattern;
 }
 
-public class Vector2IntConverter : JsonConverter<Vector2Int>
-{
-    public override void WriteJson(JsonWriter writer, Vector2Int value, JsonSerializer serializer)
-    {
-        serializer.Serialize(writer, new { x = value.x, y = value.y });
-    }
-
-    public override Vector2Int ReadJson(JsonReader reader, System.Type objectType, Vector2Int existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        throw new System.NotImplementedException();
-    }
-}
-
-public abstract class Agent
-{
-    abstract public string getAction();
-    abstract public void sendObservation(string observation);
-}
-
-public class PlayerAgent : Agent
+class ExternalAiAdapter
 {
     private Process p = null;
     private string buffer = "";
     private List<string> actionList = new List<string>();
-    public PlayerAgent(string fileName, string arguments)
+    public ExternalAiAdapter(string fileName, string arguments)
     {
         try
         {
@@ -72,10 +47,20 @@ public class PlayerAgent : Agent
 
             p.Start();
             p.BeginOutputReadLine();
+
+            // Promise to close the process
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler((sender, args) =>
+            {
+                Close();
+            });
+            GamePresenter.GameEndEvent += new EventHandler((sender, args) =>
+            {
+                Close();
+            });
         }
         catch (System.Exception e)
         {
-            Debug.Log(e);
+            Debug.LogError("Failed to start AI: " + e);
         }
     }
 
@@ -84,7 +69,7 @@ public class PlayerAgent : Agent
         buffer += eventArgs.Data + '\n';
     }
 
-    public override string getAction()
+    public string getAction()
     {
         string action = buffer;
         buffer = "";
@@ -92,96 +77,80 @@ public class PlayerAgent : Agent
         return action;
     }
 
-    public override void sendObservation(string observation)
+    public void sendObservation(string observation)
     {
+        if (p.HasExited)
+        {
+            return;
+        }
         p.StandardInput.WriteLine(observation);
         p.StandardInput.Flush();
     }
-}
 
-public class AiPlayerRecordsEventArgs : EventArgs
-{
-    public int playerId;
-    public List<string> actionStringList;
+    public void Close()
+    {
+        if (!p.HasExited)
+        {
+            p.Kill();
+        }
+    }
 }
 
 public class AiPlayer : MonoBehaviour
 {
-    public static event EventHandler<AiPlayerRecordsEventArgs> AiPlayerRecordsEvent;
-    public int reactionActionCount = 10; // 0.2s = 10 frames
-    PlayerPresenter player; // can read the player's state and call the player's action
-    MapPresenter map;
-    dynamic config;
-    Agent agent = null;
-    private int frameCount = 0;
-    Queue<dynamic> actionQueue = new Queue<dynamic>();
-    private List<string> actionStringRecords = new List<string>();
+    private JsonSerializerSettings settings;
+
+    int playerId;
+    ExternalAiAdapter adapter;
+
+    Queue<dynamic> actionQueue;
 
     void Awake()
     {
+        settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+            {
+                // errors.Add(args.ErrorContext.Error.Message);
+                args.ErrorContext.Handled = true;
+            }
+        };
+        settings.Converters.Add(new Vector2Converter());
+        settings.Converters.Add(new Vector2IntConverter());
+
+        actionQueue = new Queue<dynamic>();
     }
 
     // Assign the player that this AI should control
-    public void Init(PlayerPresenter player, MapPresenter map, dynamic config)
+    public void Init(int playerId, dynamic config)
     {
-        this.player = player;
-        this.map = map;
-        this.config = config;
-    }
+        this.playerId = playerId;
 
-    void OnGameEnd(object sender, EventArgs args)
-    {
-        AiPlayerRecordsEvent?.Invoke(this, new AiPlayerRecordsEventArgs {
-            playerId = player.model.id,
-            actionStringList = actionStringRecords
-        });
-    }
-
-    void Start()
-    {
-        GamePresenter.GameEndEvent += OnGameEnd;
-
-        if (config.type == "ai")
+        if (config.language == "python")
         {
-            if (config.language == "python")
-            {
-                agent = new PlayerAgent(
-                    "python",
-                    Application.dataPath + config.entry_point
-                );
-            }
-            else if (config.language == "cpp")
-            {
-                // TODO: C++ SDK
-            }
-            else
-            {
-                Debug.LogError("Unknown language: " + config.language);
-            }
+            adapter = new ExternalAiAdapter(
+                "python",
+                Application.dataPath + "/../" + (string)config.entryPoint
+            );
         }
-        else if (config.type == "human")
+        else if (config.language == "cpp")
         {
-            // TODO: human agent
+            // TODO: implement
         }
         else
         {
-            Debug.LogError("Unknown type: " + config.type);
+            Debug.LogError("Unknown language: " + config.language);
         }
+
+        // Send start observation
+        adapter.sendObservation(EncodeStartObservation());
     }
 
-    void OnDisable()
-    {
-        GamePresenter.GameEndEvent -= OnGameEnd;
-    }
-
-    // TODO: to be implemented
     void FixedUpdate()
     {
-        frameCount++;
-
         // Consume action from agent
-        string actionString = agent.getAction();
-        actionStringRecords.Add(actionString);
+        string actionString = adapter.getAction();
         foreach (string action in actionString.Split('\n'))
         {
             if (action == "")
@@ -194,92 +163,56 @@ public class AiPlayer : MonoBehaviour
             }
             else
             {
-                Debug.Log("Cannot parse action: ");
-                Debug.Log(action);
+                Debug.LogWarning("Invalid action: " + action);
             }
         }
 
         // Send observation to agent
-        string observation = EncodeObservation();
-        agent.sendObservation(observation);
+        adapter.sendObservation(EncodeRoutineObservation());
 
         // Invoke action
-        if (actionQueue.Count > 0 && actionQueue.Peek().frameCount <= frameCount - reactionActionCount)
-            InvokeAction(actionQueue.Dequeue());
-        else if (actionQueue.Count > 0)
+        if (actionQueue.Count > 0 && actionQueue.Peek().frame <= GameModel.Instance.frame)
         {
-            Debug.LogWarning("Action missing: " + (frameCount - reactionActionCount));
+            MapPresenter.Instance.InterpretAction(playerId, actionQueue.Dequeue());
         }
     }
 
-    string EncodeObservation()
+    private string EncodeStartObservation()
     {
-        JsonSerializerSettings settings = new JsonSerializerSettings
+        int[,] map = new int[MapModel.Instance.map.GetLength(0), MapModel.Instance.map.GetLength(1)];
+        for (int i = 0; i < MapModel.Instance.map.GetLength(0); i++)
         {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+            for (int j = 0; j < MapModel.Instance.map.GetLength(1); j++)
             {
-                // errors.Add(args.ErrorContext.Error.Message);
-                args.ErrorContext.Handled = true;
+                map[i, j] = MapModel.Instance.map[i, j].isObstacle ? 1 : 0;
             }
-        };
-        settings.Converters.Add(new Vector2Converter());
-        settings.Converters.Add(new Vector2IntConverter());
-        string observation_str = JsonConvert.SerializeObject(new Observation
+        }
+        string observation_str = JsonConvert.SerializeObject(new StartObservation
         {
             map = map,
-            isGameOver = false, // TODO
-            playerId = this.player.model.id,
-            frameCount = frameCount,
+            myId = playerId,
+            myTeam = MapModel.Instance.players[playerId].team
         }, Formatting.None, settings);
-        // Write to tmp.txt
-        // File.WriteAllText(Application.dataPath + "/tmp.json", observation_str);
         return observation_str;
     }
 
-    void InvokeAction(dynamic action)
+
+    static bool first = true;
+    private string EncodeRoutineObservation()
     {
-        // Debug.Log("action.type: " + action.type);
-        // Debug.Log("action.direction: " + action.direction);
-        if (action.type == "Move")
+        string observation_str = JsonConvert.SerializeObject(new RoutineObservation
         {
-            player.TryMove((ForwardOrBackward)action.direction);
-        }
-        else if (action.type == "Rotate")
+            frame = GameModel.Instance.frame,
+            players = MapModel.Instance.players,
+            bombs = MapModel.Instance.bombs,
+            portalsClassifiedByPattern = MapModel.Instance.portalsClassifiedByPattern
+        }, Formatting.None, settings);
+        // Debug
+        if (first)
         {
-            player.TryRotate((LeftOrRight)action.direction);
+            System.IO.File.WriteAllText("observation.json", observation_str);
+            first = false;
         }
-        else if (action.type == "Shoot")
-        {
-            player.TryShoot();
-        }
-        else if (action.type == "ChangeBullet")
-        {
-            player.TryChangeBullet();
-        }
-        else if (action.type == "PlaceBomb")
-        {
-            player.TryPlaceBomb(new Vector2Int((int)action.targetX, (int)action.targetY));
-        }
-        else if (action.type == "AddLine")
-        {
-            player.TryAddLine(new Vector2Int((int)action.targetX, (int)action.targetY), (LineInPortalPattern)action.line);
-        }
-        else if (action.type == "RemoveLine")
-        {
-            player.TryRemoveLine(new Vector2Int((int)action.targetX, (int)action.targetY), (LineInPortalPattern)action.line);
-        }
-        else if (action.type == "ActivatePortal")
-        {
-            player.TryActivatePortal(new Vector2Int((int)action.sourceX, (int)action.sourceY), new Vector2Int((int)action.targetX, (int)action.targetY));
-        }
-        else if (action.type == "Idle")
-        {
-            // do nothing
-        }
-        else
-        {
-            Debug.Log("Unknown action type: " + action.type);
-        }
+        return observation_str;
     }
 }
