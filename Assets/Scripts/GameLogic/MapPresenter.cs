@@ -59,10 +59,10 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
     }
 
-    private void Start()
-    {
-        Test();
-    }
+    // private void Start()
+    // {
+    //     Test();
+    // }
 
     private void Test()
     {
