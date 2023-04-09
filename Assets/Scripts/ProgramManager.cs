@@ -24,9 +24,25 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else
         {
-            configString = TryReadCustomConfig();
+            // Get `--config` CLI argument
+            string[] args = System.Environment.GetCommandLineArgs();
+            bool hasConfigArg = false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--config")
+                {
+                    string path = args[i + 1];
+                    configString = TryReadCustomConfig(path);
+                    hasConfigArg = true;
+                    break;
+                }
+            }
+            if (!hasConfigArg)
+            {
+                configString = TryReadCustomConfig();
+            }
         }
-        Config configObject = JsonConvert.DeserializeObject<Config>(configString);
+        configObject = JsonConvert.DeserializeObject<Config>(configString);
     }
 
     private void Start()
