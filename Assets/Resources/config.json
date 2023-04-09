@@ -1,4 +1,5 @@
 {
+    "$schema": "https://raw.githubusercontent.com/THUAI6-ssast/Game/main/docs/config.schema.json",
     "timeScale": 1.0,
     "gameTime": 300.0,
     "data": {

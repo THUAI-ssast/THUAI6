@@ -24,7 +24,6 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else
         {
-            
             string[] args = System.Environment.GetCommandLineArgs();
             bool hasConfigArg = false;
             for (int i = 0; i < args.Length; i++)
@@ -51,7 +50,10 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     private void Start()
     {
         // Set up the game accordingly
-        Time.timeScale = configObject.timeScale;
+        if (configObject.timeScale != 0.0f)
+        {
+            Time.timeScale = configObject.timeScale;
+        }
         if (configObject.data.replayPath != null)
         {
             // TODO: load the replay from the path
@@ -59,8 +61,10 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         else if (configObject.data.players != null)
         {
             gameObject.AddComponent<Recorder>();
-            GameModel.Instance.SetTimeLeft(configObject.gameTime);
-
+            if (configObject.gameTime != 0.0f)
+            {
+                GameModel.Instance.SetTimeLeft(configObject.gameTime);
+            }
             // Set up player controllers
             for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
             {
