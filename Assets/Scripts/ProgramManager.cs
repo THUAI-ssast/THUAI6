@@ -10,11 +10,12 @@ public class Config
 
 public class ProgramManager : MonoSingleton<ProgramManager>
 {
-    private string configString;
+    public Config configObject;
 
     public override void Init()
     {
         // Read the config
+        string configString = null;
         if (Application.platform == RuntimePlatform.WebGLPlayer)
         {
             configString = ReadDefaultConfig();
@@ -24,7 +25,10 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             configString = TryReadCustomConfig();
         }
         Config configObject = JsonConvert.DeserializeObject<Config>(configString);
+    }
 
+    private void Start()
+    {
         // Set up the game accordingly
         if (!configObject.render)
         {
@@ -36,16 +40,24 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else if (configObject.data.players != null)
         {
-            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            // set up recorder
+            gameObject.AddComponent<Recorder>();
 
-            foreach (GameObject player in players)
+            // Set up player controllers
+            for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
             {
-                PlayerPresenter playerPresenter = player.GetComponent<PlayerPresenter>();
-                int playerId = playerPresenter.model.id;
-                var playerConfig = configObject.data.players[playerId];
-
-                AiPlayer aiPlayer = player.AddComponent<AiPlayer>();
-                aiPlayer.Init(player.GetComponent<PlayerPresenter>(), MapPresenter.Instance, playerConfig);
+                dynamic playerConfig = configObject.data.players[playerId];
+                GameObject playerObject = MapPresenter.Instance.GetPlayerObject(playerId);
+                if (playerConfig.type == "ai")
+                {
+                    // set up AI player
+                    AiPlayer aiPlayer = playerObject.AddComponent<AiPlayer>();
+                    aiPlayer.Init(playerId, playerConfig);
+                }
+                else if (playerConfig.type == "human")
+                {
+                    // TODO: set up human player
+                }
             }
         }
     }
@@ -58,12 +70,12 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     }
 
     // read custom config from data folder if it exists, otherwise read default config
-    private string TryReadCustomConfig()
+    private string TryReadCustomConfig(string path = "config.json")
     {
-        string path = Application.dataPath + "/config.json";
-        if (File.Exists(path))
+        string fullPath = Application.dataPath + "/../" + path;
+        if (File.Exists(fullPath))
         {
-            return File.ReadAllText(path);
+            return File.ReadAllText(fullPath);
         }
         else
         {

@@ -120,10 +120,15 @@ public class Recorder : MonoSingleton<Recorder>
         settings.Converters.Add(new Vector2Converter());
         settings.Converters.Add(new Vector2IntConverter());
 
-        string jsonString = JsonConvert.SerializeObject(this, Formatting.None, settings);
+        string jsonString = JsonConvert.SerializeObject(new
+        {
+            init = init,
+            process = process,
+            result = result
+        }, Formatting.None, settings);
 
         // save the data to a json file
-        string path = Application.dataPath + "/record.json";
+        string path = Application.dataPath + "/../record.json";
         System.IO.File.WriteAllText(path, jsonString);
     }
 }
