@@ -5,30 +5,51 @@ using UnityEngine;
 public class Config
 {
     public bool render;
-    public dynamic data;
-}
-
-public class Config
-{
-    public bool render;
+    public float timeScale;
+    public float gameTime;
     public dynamic data;
 }
 
 public class ProgramManager : MonoSingleton<ProgramManager>
 {
-    private string configString;
+    public Config configObject;
 
     public override void Init()
     {
         // Read the config
-        if (Application.platform == RuntimePlatform.WebGLPlayer) {
+        string configString = null;
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
             configString = ReadDefaultConfig();
-        } else {
-            configString = TryReadCustomConfig();
         }
-        Config configObject = JsonConvert.DeserializeObject<Config>(configString);
+        else
+        {
+            // Get `--config` CLI argument
+            string[] args = System.Environment.GetCommandLineArgs();
+            bool hasConfigArg = false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--config")
+                {
+                    string path = args[i + 1];
+                    configString = TryReadCustomConfig(path);
+                    hasConfigArg = true;
+                    break;
+                }
+            }
+            if (!hasConfigArg)
+            {
+                configString = TryReadCustomConfig();
+            }
+        }
+        configObject = JsonConvert.DeserializeObject<Config>(configString);
+    }
 
+    private void Start()
+    {
         // Set up the game accordingly
+        Time.timeScale = configObject.timeScale;
+        GameModel.Instance.SetTimeLeft(configObject.gameTime);
         if (!configObject.render)
         {
             Camera.main.enabled = false;
@@ -39,16 +60,23 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         }
         else if (configObject.data.players != null)
         {
-            foreach (var player in configObject.data.players)
+            // set up recorder
+            gameObject.AddComponent<Recorder>();
+
+            // Set up player controllers
+            for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
             {
-                if (player.type == "human")
+                dynamic playerConfig = configObject.data.players[playerId];
+                GameObject playerObject = MapPresenter.Instance.GetPlayerObject(playerId);
+                if (playerConfig.type == "ai")
                 {
-                    // TODO: create a human player
+                    // set up AI player
+                    AiPlayer aiPlayer = playerObject.AddComponent<AiPlayer>();
+                    aiPlayer.Init(playerId, playerConfig);
                 }
-                else if (player.type == "ai")
+                else if (playerConfig.type == "human")
                 {
-                    string path = player.path;
-                    // TODO: create an AI player
+                    // TODO: set up human player
                 }
             }
         }
@@ -62,12 +90,12 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     }
 
     // read custom config from data folder if it exists, otherwise read default config
-    private string TryReadCustomConfig()
+    private string TryReadCustomConfig(string path = "config.json")
     {
-        string path = Application.dataPath + "/config.json";
-        if (File.Exists(path))
+        string fullPath = Application.dataPath + "/../" + path;
+        if (File.Exists(fullPath))
         {
-            return File.ReadAllText(path);
+            return File.ReadAllText(fullPath);
         }
         else
         {
