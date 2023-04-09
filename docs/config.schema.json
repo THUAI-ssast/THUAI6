@@ -1,0 +1,88 @@
+{
+    "title": "Config",
+    "type": "object",
+    "properties": {
+        "timeScale": {
+            "type": "number",
+            "default": 1.0
+        },
+        "gameTime": {
+            "type": "number"
+        },
+        "data": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "players": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "ai"
+                                                ]
+                                            },
+                                            "language": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "cpp",
+                                                    "python"
+                                                ]
+                                            },
+                                            "entryPoint": {
+                                                "type": "string",
+                                                "description": "Relative to the player's directory"
+                                            }
+                                        },
+                                        "required": [
+                                            "type",
+                                            "language",
+                                            "entryPoint"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "human"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "players"
+                    ],
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "replayPath": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "replayPath"
+                    ],
+                    "additionalProperties": false
+                }
+            ]
+        }
+    }
+}
