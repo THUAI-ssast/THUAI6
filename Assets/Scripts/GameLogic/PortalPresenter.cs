@@ -56,7 +56,7 @@ public class PortalPresenter : MonoBehaviour
         }
         foreach (var bomb in bombs)
         {
-            if (model.isInPortal(bomb.position))
+            if (model.isInPortal(bomb.position + new Vector2(0.5f, 0.5f)))
             {
                 MapPresenter.Instance.SetBombPosition(bomb, destination);
             }

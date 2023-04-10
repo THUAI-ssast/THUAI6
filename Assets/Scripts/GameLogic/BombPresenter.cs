@@ -62,7 +62,7 @@ public class BombPresenter : MonoBehaviour
         List<PlayerModel> players = MapModel.Instance.players;
         foreach (PlayerModel player in players)
         {
-            if (Vector2.Distance(player.position, transform.position) <= BombModel.ExplosionRadius)
+            if (Vector2.Distance(player.position, model.position + new Vector2(0.5f, 0.5f)) <= BombModel.ExplosionRadius)
             {
                 player.Hurt(BombModel.ExplosionDamage);
             }
