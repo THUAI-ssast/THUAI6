@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class BombView : MonoBehaviour
 {
-    // TODO: to be decided
     public static float ExplosionDuration = 1.0f;
 
     private SpriteRenderer sr;

@@ -55,14 +55,14 @@ public class PlayerModel
     public const int MaxBombCount = 1;
 
     public const float ShootInterval = 0.1f;
-    public const float ChangeBulletTime = 0.5f;
+    public const float ChangeBulletTime = 2.5f;
     public const float PlaceBombTime = 2.0f;
     public const float ModifyPortalTime = 0.5f;
     public const float ActivatePortalTime = 1.0f;
     public const float RespawnTime = 8.0f;
 
     public const int BulletDamage = 10;
-    public const float BulletRange = 10.0f;
+    public const float BulletRange = 20.0f;
     // max distance between the player and the cell where the player can place a bomb
     public const float MaxBombDistance = 5.0f;
 

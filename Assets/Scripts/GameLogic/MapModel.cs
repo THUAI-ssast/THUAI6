@@ -20,7 +20,6 @@ public struct Cell
 
 public class MapModel : Singleton<MapModel>
 {
-    // TODO: to be decided
     public const int Width = 20;
     public const int Height = 20;
 
@@ -137,7 +136,7 @@ public class MapModel : Singleton<MapModel>
 
         PortalModel portal1 = map[cellPosition.x, cellPosition.y].portal;
         // Check the origin portal
-        if (portal1.pattern == 0 || portal1.isBeingUsed)
+        if (portal1.pattern == 0 || portal1.isActivated)
         {
             return false;
         }
