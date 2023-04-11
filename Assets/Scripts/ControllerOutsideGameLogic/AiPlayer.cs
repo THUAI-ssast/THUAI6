@@ -83,8 +83,15 @@ class ExternalAiAdapter
         {
             return;
         }
-        p.StandardInput.WriteLine(observation);
-        p.StandardInput.Flush();
+        try
+        {
+            p.StandardInput.WriteLine(observation);
+            p.StandardInput.Flush();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to send observation: " + e);
+        }
     }
 
     public void Close()
