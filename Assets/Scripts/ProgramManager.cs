@@ -16,6 +16,9 @@ public class ProgramManager : MonoSingleton<ProgramManager>
 
     public override void Init()
     {
+        // Set the working directory
+        Directory.SetCurrentDirectory(Application.dataPath + "/../");
+
         // Read the config
         string configString = null;
         if (Application.platform == RuntimePlatform.WebGLPlayer)
@@ -94,10 +97,9 @@ public class ProgramManager : MonoSingleton<ProgramManager>
     // read custom config from data folder if it exists, otherwise read default config
     private string TryReadCustomConfig(string path = "config.json")
     {
-        string fullPath = Application.dataPath + "/../" + path;
-        if (File.Exists(fullPath))
+        if (File.Exists(path))
         {
-            return File.ReadAllText(fullPath);
+            return File.ReadAllText(path);
         }
         else
         {

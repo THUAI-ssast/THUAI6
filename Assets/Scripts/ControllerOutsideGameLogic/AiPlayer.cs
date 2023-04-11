@@ -136,10 +136,7 @@ public class AiPlayer : MonoBehaviour
 
         if (config.language == "python")
         {
-            adapter = new ExternalAiAdapter(
-                "python",
-                Application.dataPath + "/../" + (string)config.entryPoint
-            );
+            adapter = new ExternalAiAdapter("python", (string)config.entryPoint);
         }
         else if (config.language == "cpp")
         {

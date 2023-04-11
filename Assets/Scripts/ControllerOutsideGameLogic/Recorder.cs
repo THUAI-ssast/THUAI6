@@ -128,7 +128,7 @@ public class Recorder : MonoSingleton<Recorder>
         }, Formatting.None, settings);
 
         // save the data to a json file
-        string path = Application.dataPath + "/../record.json";
+        string path = "record.json";
         System.IO.File.WriteAllText(path, jsonString);
     }
 }
