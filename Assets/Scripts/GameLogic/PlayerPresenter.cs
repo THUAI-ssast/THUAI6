@@ -20,12 +20,14 @@ public class PlayerPresenter : MonoBehaviour
             if (_model != null)
             {
                 _model.PositionChangedEvent -= OnPositionChanged;
+                _model.RotationChangedEvent -= OnRotationChanged;
                 _model.DiedEvent -= OnDied;
             }
             _model = value;
             if (_model != null)
             {
                 _model.PositionChangedEvent += OnPositionChanged;
+                _model.RotationChangedEvent += OnRotationChanged;
                 _model.DiedEvent += OnDied;
             }
         }
@@ -233,7 +235,7 @@ public class PlayerPresenter : MonoBehaviour
     {
         Vector2 direction = transform.rotation * Vector3.up;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, PlayerModel.BulletRange);
-        
+
         if (hit.collider == null)
         {
             _view.ShootBullet(transform.position + (Vector3)direction * PlayerModel.BulletRange);
@@ -259,6 +261,11 @@ public class PlayerPresenter : MonoBehaviour
     private void OnPositionChanged(object sender, Vector2 position)
     {
         transform.position = new Vector3(position.x, position.y, 0);
+    }
+
+    private void OnRotationChanged(object sender, float rotation)
+    {
+        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
     }
 
     private void OnDied(object sender, Team team)
