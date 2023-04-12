@@ -57,17 +57,19 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             Time.timeScale = configObject.timeScale;
         }
+        if (configObject.gameTime != 0.0f)
+        {
+            GameModel.Instance.SetTimeLeft(configObject.gameTime);
+        }
+
         if (configObject.data.replayPath != null)
         {
-            // TODO: load the replay from the path
+            Replayer replayer = gameObject.AddComponent<Replayer>();
+            replayer.Init((string)configObject.data.replayPath);
         }
         else if (configObject.data.players != null)
         {
             gameObject.AddComponent<Recorder>();
-            if (configObject.gameTime != 0.0f)
-            {
-                GameModel.Instance.SetTimeLeft(configObject.gameTime);
-            }
             // Set up player controllers
             for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
             {

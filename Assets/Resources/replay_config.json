@@ -1,0 +1,8 @@
+{
+    "$schema": "https://raw.githubusercontent.com/THUAI-ssast/THUAI6/main/docs/config.schema.json",
+    "timeScale": 1.0,
+    "gameTime": 300.0,
+    "data": {
+        "replayPath": "record.json"
+    }
+}
