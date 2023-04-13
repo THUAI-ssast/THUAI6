@@ -57,10 +57,6 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             Time.timeScale = configObject.timeScale;
         }
-        if (configObject.gameTime != 0.0f)
-        {
-            GameModel.Instance.SetTimeLeft(configObject.gameTime);
-        }
 
         if (configObject.data.replayPath != null)
         {
@@ -70,6 +66,10 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         else if (configObject.data.players != null)
         {
             gameObject.AddComponent<Recorder>();
+            if (configObject.gameTime != 0.0f)
+            {
+                GameModel.Instance.SetTimeLeft(configObject.gameTime);
+            }
             // Set up player controllers
             for (int playerId = 0; playerId < configObject.data.players.Count; playerId++)
             {
