@@ -87,6 +87,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
                 }
             }
         }
+        GamePresenter.Instance.GameStart();
     }
 
     // read default config from Resources folder
