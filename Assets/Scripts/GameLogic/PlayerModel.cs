@@ -67,6 +67,7 @@ public class PlayerModel
     public const float MaxBombDistance = 5.0f;
 
     public event EventHandler<Vector2> PositionChangedEvent;
+    public event EventHandler<float> RotationChangedEvent;
     public event EventHandler<Team> DiedEvent;
 
     public int id
@@ -106,6 +107,12 @@ public class PlayerModel
     {
         this.position = position;
         PositionChangedEvent?.Invoke(this, position);
+    }
+
+    public void SetRotation(float rotation)
+    {
+        this.rotation = rotation;
+        RotationChangedEvent?.Invoke(this, rotation);
     }
 
     public void MoveBy(Vector2 offset)

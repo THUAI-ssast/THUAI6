@@ -57,9 +57,11 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             Time.timeScale = configObject.timeScale;
         }
+
         if (configObject.data.replayPath != null)
         {
-            // TODO: load the replay from the path
+            Replayer replayer = gameObject.AddComponent<Replayer>();
+            replayer.Init((string)configObject.data.replayPath);
         }
         else if (configObject.data.players != null)
         {
@@ -85,6 +87,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
                 }
             }
         }
+        GamePresenter.Instance.GameStart();
     }
 
     // read default config from Resources folder

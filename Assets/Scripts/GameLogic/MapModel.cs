@@ -82,6 +82,24 @@ public class MapModel : Singleton<MapModel>
         }
     }
 
+    public void CustomInit(dynamic initMapData, List<object> initPlayersData)
+    {
+        // Restore map obstacles
+        for (int i = 0; i < map.GetLength(0); i++)
+            for (int j = 0; j < map.GetLength(1); j++)
+                map[i, j].isObstacle = ((int)initMapData[i][j] == 1);
+
+        // Restore player states
+        for (int i = 0; i < initPlayersData.Count; i++)
+        {
+            dynamic initPlayerData = initPlayersData[i];
+            PlayerModel playerModel = players[(int)initPlayerData.id];
+
+            playerModel.SetPosition(new Vector2((float)initPlayerData.position[0], (float)initPlayerData.position[1]));
+            playerModel.SetRotation((float)initPlayerData.rotation);
+        }
+    }
+
     // return a random position that is not an obstacle
     public Vector2Int GetRandomPosition()
     {

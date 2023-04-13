@@ -16,7 +16,8 @@ public class GamePresenter : MonoSingleton<GamePresenter>
         _view = GetComponent<GameView>();
     }
 
-    void Start()
+    // Doesn't use Start() to avoid bug from life cycle
+    public void GameStart()
     {
         GameStartEvent?.Invoke(this, EventArgs.Empty);
     }

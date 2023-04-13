@@ -59,6 +59,12 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
     }
 
+    public void CustomInit(dynamic initMapData, List<object> initPlayersData)
+    {
+        model.CustomInit(initMapData, initPlayersData);
+        _view?.InitMap(model.map);
+    }
+
     // private void Start()
     // {
     //     Test();
@@ -120,7 +126,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
                     playerPresenter.TryChangeBullet();
                     break;
                 case "PlaceBomb":
-                    playerPresenter.TryPlaceBomb(new Vector2Int((int)action.position.x, (int)action.position.y));
+                    playerPresenter.TryPlaceBomb(new Vector2Int((int)action.target.x, (int)action.target.y));
                     break;
                 case "AddLine":
                     playerPresenter.TryAddLine((Direction)action.direction);
@@ -129,7 +135,7 @@ public class MapPresenter : MonoSingleton<MapPresenter>
                     playerPresenter.TryRemoveLine((Direction)action.direction);
                     break;
                 case "ActivatePortal":
-                    playerPresenter.TryActivatePortal(new Vector2Int((int)action.position.x, (int)action.position.y));
+                    playerPresenter.TryActivatePortal(new Vector2Int((int)action.destination.x, (int)action.destination.y));
                     break;
                 case "Idle":
                     break;
