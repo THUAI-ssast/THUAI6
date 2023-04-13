@@ -28,23 +28,7 @@ public class Replayer : MonoSingleton<Replayer>
     {
         dynamic initMapData = replayData.init.map;
         List<object> initPlayersData = replayData.init.players.ToObject<List<object>>();
-
-        // Restore map obstacles
-        Cell[,] map = mapPresenter.model.map;
-        for (int i = 0; i < map.GetLength(0); i++)
-            for (int j = 0; j < map.GetLength(1); j++)
-                map[i, j].isObstacle = (initMapData[i][j] == 1);
-
-        // Restore player states
-        List<PlayerModel> players = mapPresenter.model.players;
-        for (int i = 0; i < initPlayersData.Count; i++)
-        {
-            dynamic initPlayerData = initPlayersData[i];
-            PlayerModel playerModel = players.Find(player => player.id == (int)initPlayerData.id);
-
-            playerModel.SetPosition(new Vector2((float)initPlayerData.position[0], (float)initPlayerData.position[1]));
-            playerModel.SetRotation((float)initPlayerData.rotation);
-        }
+        mapPresenter.CustomInit(initMapData, initPlayersData);
     }
 
     void FixedUpdate()

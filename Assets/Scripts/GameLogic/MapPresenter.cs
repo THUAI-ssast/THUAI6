@@ -59,6 +59,12 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
     }
 
+    public void CustomInit(dynamic initMapData, List<object> initPlayersData)
+    {
+        model.CustomInit(initMapData, initPlayersData);
+        _view?.InitMap(model.map);
+    }
+
     // private void Start()
     // {
     //     Test();
