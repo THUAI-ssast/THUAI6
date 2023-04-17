@@ -30,8 +30,19 @@ public class MapModel : Singleton<MapModel>
     public List<BombModel> bombs { get; private set; } = new List<BombModel>();
     public Dictionary<PortalPattern, List<PortalModel>> portalsClassifiedByPattern { get; private set; } = new Dictionary<PortalPattern, List<PortalModel>>();
 
+    private System.Random _processRandom;
+    private int _processSeed;
+    public int GetProcessSeed()
+    {
+        return _processSeed;
+    }
+
     private MapModel()
     {
+        // initialize random seed
+        int initSeed = Guid.NewGuid().GetHashCode();
+        System.Random initRandom = new System.Random(initSeed);
+
         // initialize map
         int[,] initialMap = new int[Width, Height]
         {
@@ -56,6 +67,24 @@ public class MapModel : Singleton<MapModel>
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
         };
+        InitMap(initialMap);
+
+        // initialize players(model only)
+        const int teamCount = GameModel.TeamCount;
+        const int playerCountEachTeam = GameModel.PlayerCountEachTeam;
+        const int playerCount = teamCount * playerCountEachTeam;
+        for (int i = 0; i < playerCount; i++)
+        {
+            players.Add(new PlayerModel(i, (Team)(i / playerCountEachTeam), PlayerModel.GetPositionFromCellPosition(GetRandomPosition(initRandom))));
+        }
+
+        // initialize process random seed
+        _processSeed = Guid.NewGuid().GetHashCode();
+        _processRandom = new System.Random(_processSeed);
+    }
+
+    public void InitMap(int[,] initialMap)
+    {
         for (int i = 0; i < map.GetLength(0); i++)
         {
             for (int j = 0; j < map.GetLength(1); j++)
@@ -72,22 +101,18 @@ public class MapModel : Singleton<MapModel>
                 }
             }
         }
-        // initialize players(model only)
-        const int teamCount = GameModel.TeamCount;
-        const int playerCountEachTeam = GameModel.PlayerCountEachTeam;
-        const int playerCount = teamCount * playerCountEachTeam;
-        for (int i = 0; i < playerCount; i++)
-        {
-            players.Add(new PlayerModel(i, (Team)(i / playerCountEachTeam), PlayerModel.GetPositionFromCellPosition(GetRandomPosition())));
-        }
     }
 
-    public void CustomInit(dynamic initMapData, List<object> initPlayersData)
+    public void CustomInit(int processSeed, int[,] initMapData, List<object> initPlayersData)
     {
-        // Restore map obstacles
-        for (int i = 0; i < map.GetLength(0); i++)
-            for (int j = 0; j < map.GetLength(1); j++)
-                map[i, j].isObstacle = ((int)initMapData[i][j] == 1);
+        // Restore process random seed
+        _processSeed = processSeed;
+        _processRandom = new System.Random(_processSeed);
+
+        // Restore map
+        // clear map
+        map = new Cell[Width, Height];
+        InitMap((int[,])initMapData);
 
         // Restore player states
         for (int i = 0; i < initPlayersData.Count; i++)
@@ -101,12 +126,17 @@ public class MapModel : Singleton<MapModel>
     }
 
     // return a random position that is not an obstacle
-    public Vector2Int GetRandomPosition()
+    public Vector2Int GetRandomPosition(System.Random random = null)
     {
+        // default random is process random
+        if (random == null)
+        {
+            random = _processRandom;
+        }
         do
         {
-            int x = UnityEngine.Random.Range(0, map.GetLength(0));
-            int y = UnityEngine.Random.Range(0, map.GetLength(1));
+            int x = random.Next(0, map.GetLength(0));
+            int y = random.Next(0, map.GetLength(1));
             if (!map[x, y].isObstacle)
             {
                 return new Vector2Int(x, y);

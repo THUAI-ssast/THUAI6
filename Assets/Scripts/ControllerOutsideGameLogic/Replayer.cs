@@ -26,9 +26,10 @@ public class Replayer : MonoSingleton<Replayer>
 
     void Start()
     {
-        dynamic initMapData = replayData.init.map;
+        int processSeed = replayData.init.processSeed;
+        int[,] initMapData = replayData.init.map.ToObject<int[,]>();
         List<object> initPlayersData = replayData.init.players.ToObject<List<object>>();
-        mapPresenter.CustomInit(initMapData, initPlayersData);
+        mapPresenter.CustomInit(processSeed, initMapData, initPlayersData);
     }
 
     void FixedUpdate()
