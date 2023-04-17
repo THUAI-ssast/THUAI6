@@ -120,6 +120,7 @@ public class PlayerPresenter : MonoBehaviour
     public bool TryChangeBullet()
     {
         if (!model.state.canChangeBullet) return false;
+        if (model.ammo == PlayerModel.MaxAmmo) return false;
         ChangeBullet();
         return true;
     }
