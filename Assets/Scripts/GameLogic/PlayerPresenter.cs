@@ -47,8 +47,8 @@ public class PlayerPresenter : MonoBehaviour
     {
         this.model = model;
 
-        transform.position = new Vector3(model.position.x, model.position.y, 0);
-        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
+        _rb2D.position = model.position;
+        _rb2D.rotation = model.rotation;
 
         _view.SetColor(model.team);
     }
@@ -56,9 +56,8 @@ public class PlayerPresenter : MonoBehaviour
     void FixedUpdate()
     {
         // Preserve the model is consistent with the game object
-        model.position = transform.position;
-        // model.rotation is float, transform.rotation is Quaternion
-        model.rotation = transform.rotation.eulerAngles.z;
+        model.position = _rb2D.position;
+        model.rotation = _rb2D.rotation;
     }
 
     // 1. Check if the player can perform the action
@@ -234,7 +233,7 @@ public class PlayerPresenter : MonoBehaviour
 
         if (hit.collider == null)
         {
-            _view.ShootBullet(transform.position + (Vector3)direction * PlayerModel.BulletRange);
+            _view.ShootBullet(_rb2D.position + direction * PlayerModel.BulletRange);
             return;
         }
         _view.ShootBullet(hit.point);
@@ -256,12 +255,16 @@ public class PlayerPresenter : MonoBehaviour
 
     private void OnPositionChanged(object sender, Vector2 position)
     {
-        transform.position = new Vector3(position.x, position.y, 0);
+        _rb2D.position = position;
+        transform.position = position;
+        _rb2D.velocity = Vector2.zero;
     }
 
     private void OnRotationChanged(object sender, float rotation)
     {
-        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
+        _rb2D.rotation = rotation;
+        transform.rotation = Quaternion.Euler(0, 0, rotation);
+        _rb2D.angularVelocity = 0;
     }
 
     private void OnDied(object sender, Team team)

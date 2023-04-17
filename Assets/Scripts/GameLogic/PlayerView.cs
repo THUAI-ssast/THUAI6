@@ -2,10 +2,12 @@ using UnityEngine;
 public class PlayerView : MonoBehaviour
 {
     private LineRenderer _bulletLineRenderer;
+    private Rigidbody2D _rb2d;
 
     void Awake()
     {
         _bulletLineRenderer = GetComponent<LineRenderer>();
+        _rb2d = GetComponent<Rigidbody2D>();
     }
 
     public void SetColor(Team team)
@@ -27,7 +29,7 @@ public class PlayerView : MonoBehaviour
 
     public void ShootBullet(Vector2 target)
     {
-        _bulletLineRenderer.SetPosition(0, transform.position);
+        _bulletLineRenderer.SetPosition(0, _rb2d.position);
         _bulletLineRenderer.SetPosition(1, target);
         _bulletLineRenderer.enabled = true;
         DelayedFunctionCaller.CallAfter(0.1f, () => _bulletLineRenderer.enabled = false);
