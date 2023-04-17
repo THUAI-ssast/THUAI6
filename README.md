@@ -24,11 +24,19 @@
 
 配置文件默认名为 `config.json`，放在可执行文件同目录下。可根据需要修改配置文件，如比赛时长、倍速、数据来源（AI/人类玩家/回放）。
 
-配置文件格式详见 [`config.schema.json`](https://raw.githubusercontent.com/THUAI-ssast/THUAI6/main/docs/config.schema.json)。也可查看源码中负责这部分的 [`ProgramManager.cs`](./Assets/Scripts/ProgramManager.cs) 文件。参考样例：[默认config](./Assets/Resources/config.json)。
-
-可通过命令行参数 `--config <path>` 指定配置文件路径，路径相对于可执行文件目录。
+配置文件格式详见 [`config.schema.json`](https://raw.githubusercontent.com/THUAI-ssast/THUAI6/main/docs/config.schema.json)。也可查看源码中负责这部分的 [`ProgramManager.cs`](./Assets/Scripts/ProgramManager.cs) 文件。
 
 文件夹中自带了2个配置文件供使用，分别是 `config.json` 与 `config-replay.json`。选手可在此基础上根据需要修改。
+
+可通过命令行参数 `--config <path>` 指定配置文件路径，路径相对于可执行文件目录。例如：
+
+```shell
+# 不指定配置文件，默认使用 `config.json`
+./THUAI6
+
+# 以 `config-replay.json` 为配置文件启动播放器
+./THUAI6 --config config-replay.json
+```
 
 > **Note**
 > 似乎 Windows 平台下用命令行直接启动播放器而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若带参数则无此限制。暂未知原因。
