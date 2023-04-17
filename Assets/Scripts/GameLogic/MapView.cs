@@ -49,38 +49,40 @@ public class MapView : MonoBehaviour
         int i = portal.position.x;
         int j = portal.position.y;
         TileBase tile = lineTiles[0];
-        if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
+        if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Left | Direction.Right | Direction.Down)) == 0) {
             tile = lineTiles[14];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Right | Direction.Down)) == 0) {
             tile = lineTiles[13];
-        }else if(portal.pattern == (PortalPattern) ( LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
+        }
+        else if ((~portal.pattern & (PortalPattern)(Direction.Left | Direction.Right | Direction.Down)) == 0) {
             tile = lineTiles[12];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Left | Direction.Down)) == 0) {
             tile = lineTiles[11];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Left | Direction.Right)) == 0) {
             tile = lineTiles[10];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.RightDown & LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Right | Direction.Down)) == 0) {
             tile = lineTiles[9];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Down)) == 0) {
             tile = lineTiles[8];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.RightDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Right)) == 0) {
             tile = lineTiles[7];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown & LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Left | Direction.Down)) == 0) {
             tile = lineTiles[6];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown & LineInPortalPattern.RightDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Left | Direction.Right)) == 0) {
             tile = lineTiles[5];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center & LineInPortalPattern.LeftDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up | Direction.Left)) == 0) {
             tile = lineTiles[4];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Down)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Down)) == 0) {
             tile = lineTiles[3];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.RightDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Right)) == 0) {
             tile = lineTiles[2];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.Center)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Up)) == 0) {
             tile = lineTiles[1];
-        }else if(portal.pattern == (PortalPattern) (LineInPortalPattern.LeftDown)){
+        } else if ((~portal.pattern & (PortalPattern)(Direction.Left)) == 0) {
             tile = lineTiles[0];
-        }else{
-            tile = lineTiles[15];}
+        } else {
+            tile = lineTiles[15];
+        }
         tileMap.SetTile(new Vector3Int(i, j, 0), tile);
     }
 }
