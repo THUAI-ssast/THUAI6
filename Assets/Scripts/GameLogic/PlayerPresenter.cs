@@ -80,11 +80,7 @@ public class PlayerPresenter : MonoBehaviour
         // Make the game object move
 
         Vector2 directionVector = Quaternion.Euler(0, 0, model.rotation) * Vector2.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
-        _rb2D.velocity += directionVector * PlayerModel.Acceleration * Time.fixedDeltaTime;
-        if (_rb2D.velocity.magnitude > PlayerModel.MaxVelocity)
-        {
-            _rb2D.velocity = _rb2D.velocity.normalized * PlayerModel.MaxVelocity;
-        }
+        _rb2D.position += directionVector * PlayerModel.MaxVelocity * Time.fixedDeltaTime;
 
         // Model is updated in FixedUpdate
     }
@@ -102,7 +98,7 @@ public class PlayerPresenter : MonoBehaviour
 
         // Make the game object rotate
         float angle = PlayerModel.RotationSpeed * Time.fixedDeltaTime * (direction == LeftOrRight.Left ? 1 : -1);
-        transform.Rotate(0, 0, angle);
+        _rb2D.rotation += angle;
 
         // Model is updated in FixedUpdate
     }
