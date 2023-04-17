@@ -20,24 +20,29 @@
 
 ## 部署与运行
 
-以所需平台为 target，使用 Unity 打包。打包后的文件夹中包含可执行文件，双击即可运行。
+以所需平台为 target，使用 Unity 打包。打包后的文件夹中包含播放器的可执行文件（`THUAI6` 或 `THUAI6.exe`），双击即可运行。
 
 配置文件默认名为 `config.json`，放在可执行文件同目录下。可根据需要修改配置文件，如比赛时长、倍速、数据来源（AI/人类玩家/回放）。
 
 配置文件格式详见 [`config.schema.json`](https://raw.githubusercontent.com/THUAI-ssast/THUAI6/main/docs/config.schema.json)。也可查看源码中负责这部分的 [`ProgramManager.cs`](./Assets/Scripts/ProgramManager.cs) 文件。参考样例：[默认config](./Assets/Resources/config.json)。
 
-> **Note**
-> 似乎 Windows 平台下用命令行启动播放器必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。
-
 可通过命令行参数 `--config <path>` 指定配置文件路径，路径相对于可执行文件目录。
+
+文件夹中自带了2个配置文件供使用，分别是 `config.json` 与 `config-replay.json`。选手可在此基础上根据需要修改。
+
+> **Note**
+> 似乎 Windows 平台下用命令行直接启动播放器而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若带参数则无此限制。暂未知原因。
+> 可以双击打开播放器，或使用 `PowerShell`。
 
 可传入 `-batchmode` 参数，使播放器在运行时不显示窗口。
 
-在非回放模式下，游戏结束后会在可执行文件目录下生成 `record.json` 文件，其中包含了本局游戏的回放数据。可在回放模式下使用该文件进行回放。
+在非回放模式下，游戏结束后会在播放器目录下生成 `record.json` 文件，其中包含了本局游戏的回放数据。可在回放模式下使用该文件进行回放。
 
 ### SDK
 
 [SDK文档](docs/SDK文档.md)
+
+AI 触发异常时会自动记录日志，添加到播放器目录的 `ai.log` 文件。选手在编写 AI 的过程中也可根据需要自行记录日志，以便调试。
 
 ## 架构分析
 
