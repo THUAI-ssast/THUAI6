@@ -5,7 +5,7 @@
 提供 C++、Python 的 SDK，选手可自行选择：
 
 * [C++ SDK](https://github.com/THUAI-ssast/THUAI6-SDK-Cpp)
-* [Python SDK](https://github.com/THUAI-ssast/THUAI6-SDK-Python)
+* [Python SDK](https://github.com/THUAI-ssast/THUAI6-SDK-Python/releases)
 
 这里以 Python SDK 为例，其目录结构略如：
 
