@@ -59,9 +59,9 @@ public class MapPresenter : MonoSingleton<MapPresenter>
         portalPrefab = Resources.Load<GameObject>("Prefabs/Portal");
     }
 
-    public void CustomInit(dynamic initMapData, List<object> initPlayersData)
+    public void CustomInit(int seed, int[,] initMapData, List<object> initPlayersData)
     {
-        model.CustomInit(initMapData, initPlayersData);
+        model.CustomInit(seed, initMapData, initPlayersData);
         _view?.InitMap(model.map);
     }
 
@@ -141,9 +141,10 @@ public class MapPresenter : MonoSingleton<MapPresenter>
                     break;
             }
         }
-        catch (System.Exception)
+        catch (System.Exception e)
         {
-            Debug.LogError($"Player {playerId} tried to perform an invalid action: {action}");
+            Debug.LogWarning($"Player {playerId} tried to perform an invalid action: {action}");
+            Debug.LogWarning(e);
         }
     }
 

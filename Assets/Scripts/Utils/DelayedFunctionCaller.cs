@@ -10,7 +10,14 @@ public class DelayedFunctionCaller : MonoSingleton<DelayedFunctionCaller>
 
     private static IEnumerator DelayedCall(float delayTime, System.Action targetFunction)
     {
-        yield return new WaitForSeconds(delayTime); // Depends on the time scale. That is, game time but not real time.
+        // use WaitForFixedUpdate for determinism
+        int delayTimeThousands = Mathf.RoundToInt(delayTime * 1000);
+        int fixedDeltaTimeThousands = Mathf.RoundToInt(Time.fixedDeltaTime * 1000);
+        int frameCount = delayTimeThousands / fixedDeltaTimeThousands;
+        for (int i = 0; i < frameCount; i++)
+        {
+            yield return new WaitForFixedUpdate();
+        }
         targetFunction();
     }
 }

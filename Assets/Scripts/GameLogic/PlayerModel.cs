@@ -47,7 +47,6 @@ public class PlayerModel
     // TODO: to be decided
     // unit: meter, second, degree
     public const float MaxVelocity = 4.0f;
-    public const float Acceleration = 10.0f;
     public const float RotationSpeed = 600.0f;
 
     public const int MaxHp = 100;
@@ -92,7 +91,7 @@ public class PlayerModel
         this.position = position;
     }
 
-    public void Respawn()
+    public void Respawn(Vector2Int position)
     {
         hp = MaxHp;
         ammo = MaxAmmo;
@@ -100,29 +99,45 @@ public class PlayerModel
         state.isAlive = true;
         state.EnableAll();
 
-        SetPosition(GetPositionFromCellPosition(MapModel.Instance.GetRandomPosition()));
+        SetPosition(GetPositionFromCellPosition(position));
     }
 
     public void SetPosition(Vector2 position)
     {
+        if (!state.isAlive)
+        {
+            return;
+        }
         this.position = position;
         PositionChangedEvent?.Invoke(this, position);
     }
 
     public void SetRotation(float rotation)
     {
+        if (!state.isAlive)
+        {
+            return;
+        }
         this.rotation = rotation;
         RotationChangedEvent?.Invoke(this, rotation);
     }
 
     public void MoveBy(Vector2 offset)
     {
+        if (!state.isAlive)
+        {
+            return;
+        }
         position += offset;
         PositionChangedEvent?.Invoke(this, position);
     }
 
     public void Hurt(int damage)
     {
+        if (!state.isAlive)
+        {
+            return;
+        }
         hp -= damage;
         if (hp <= 0)
         {
@@ -139,7 +154,10 @@ public class PlayerModel
         DelayedFunctionCaller.CallAfter(PlayerModel.ShootInterval, () =>
         {
             state.isShooting = false;
-            state.canShoot = true;
+            if (state.isAlive)
+            {
+                state.canShoot = true;
+            }
         });
     }
 
@@ -155,7 +173,10 @@ public class PlayerModel
             ammo = PlayerModel.MaxAmmo;
 
             state.isChangingBullet = false;
-            state.EnableAll();
+            if (state.isAlive)
+            {
+                state.EnableAll();
+            }
         });
     }
 
@@ -169,7 +190,10 @@ public class PlayerModel
     {
         bombCount--;
         state.isPlacingBomb = false;
-        state.EnableAll();
+        if (state.isAlive)
+        {
+            state.EnableAll();
+        }
     }
 
     public void ModifyPortalBegin()
@@ -181,7 +205,10 @@ public class PlayerModel
     public void ModifyPortalEnd()
     {
         state.isModifyingPortal = false;
-        state.EnableAll();
+        if (state.isAlive)
+        {
+            state.EnableAll();
+        }
     }
 
     public void ActivatePortalBegin()
@@ -193,7 +220,10 @@ public class PlayerModel
     public void ActivatePortalEnd()
     {
         state.isActivatingPortal = false;
-        state.EnableAll();
+        if (state.isAlive)
+        {
+            state.EnableAll();
+        }
     }
 
     private void Die()

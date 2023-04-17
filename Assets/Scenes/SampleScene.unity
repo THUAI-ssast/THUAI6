@@ -578,6 +578,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6803f8b3ffc5874ca3799cc088ff70e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isBatchMode: 0
+  isReplayMode: 0
 --- !u!4 &981933532
 Transform:
   m_ObjectHideFlags: 0

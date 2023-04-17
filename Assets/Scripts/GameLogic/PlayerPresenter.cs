@@ -47,8 +47,8 @@ public class PlayerPresenter : MonoBehaviour
     {
         this.model = model;
 
-        transform.position = new Vector3(model.position.x, model.position.y, 0);
-        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
+        _rb2D.position = model.position;
+        _rb2D.rotation = model.rotation;
 
         _view.SetColor(model.team);
     }
@@ -56,9 +56,8 @@ public class PlayerPresenter : MonoBehaviour
     void FixedUpdate()
     {
         // Preserve the model is consistent with the game object
-        model.position = transform.position;
-        // model.rotation is float, transform.rotation is Quaternion
-        model.rotation = transform.rotation.eulerAngles.z;
+        model.position = _rb2D.position;
+        model.rotation = _rb2D.rotation;
     }
 
     // 1. Check if the player can perform the action
@@ -80,11 +79,7 @@ public class PlayerPresenter : MonoBehaviour
         // Make the game object move
 
         Vector2 directionVector = Quaternion.Euler(0, 0, model.rotation) * Vector2.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
-        _rb2D.velocity += directionVector * PlayerModel.Acceleration * Time.fixedDeltaTime;
-        if (_rb2D.velocity.magnitude > PlayerModel.MaxVelocity)
-        {
-            _rb2D.velocity = _rb2D.velocity.normalized * PlayerModel.MaxVelocity;
-        }
+        _rb2D.position += directionVector * PlayerModel.MaxVelocity * Time.fixedDeltaTime;
 
         // Model is updated in FixedUpdate
     }
@@ -102,7 +97,7 @@ public class PlayerPresenter : MonoBehaviour
 
         // Make the game object rotate
         float angle = PlayerModel.RotationSpeed * Time.fixedDeltaTime * (direction == LeftOrRight.Left ? 1 : -1);
-        transform.Rotate(0, 0, angle);
+        _rb2D.rotation += angle;
 
         // Model is updated in FixedUpdate
     }
@@ -125,6 +120,7 @@ public class PlayerPresenter : MonoBehaviour
     public bool TryChangeBullet()
     {
         if (!model.state.canChangeBullet) return false;
+        if (model.ammo == PlayerModel.MaxAmmo) return false;
         ChangeBullet();
         return true;
     }
@@ -157,7 +153,7 @@ public class PlayerPresenter : MonoBehaviour
         model.PlaceBombBegin();
         DelayedFunctionCaller.CallAfter(PlayerModel.PlaceBombTime, () =>
         {
-            MapPresenter.Instance.PlaceBomb(Vector2Int.FloorToInt(transform.position));
+            MapPresenter.Instance.PlaceBomb(target);
             model.PlaceBombEnd();
         });
     }
@@ -165,7 +161,7 @@ public class PlayerPresenter : MonoBehaviour
     public bool TryAddLine(Direction direction)
     {
         // target is valid
-        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(model.position), direction);
         if (!canModifyPortalLine) return false;
         // player is ready to add line
         if (!model.state.canModifyPortal) return false;
@@ -177,9 +173,11 @@ public class PlayerPresenter : MonoBehaviour
     {
         PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new AddLineAction(direction) });
         model.ModifyPortalBegin();
+
+        Vector2Int target = Vector2Int.FloorToInt(model.position);
         DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
         {
-            MapPresenter.Instance.AddLine(Vector2Int.FloorToInt(transform.position), direction);
+            MapPresenter.Instance.AddLine(target, direction);
             model.ModifyPortalEnd();
         });
     }
@@ -187,7 +185,7 @@ public class PlayerPresenter : MonoBehaviour
     public bool TryRemoveLine(Direction direction)
     {
         // target is valid
-        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(transform.position), direction);
+        bool canModifyPortalLine = MapModel.Instance.CanModifyPortalLine(Vector2Int.FloorToInt(model.position), direction);
         if (!canModifyPortalLine) return false;
         // player is ready to remove line
         if (!model.state.canModifyPortal) return false;
@@ -199,9 +197,11 @@ public class PlayerPresenter : MonoBehaviour
     {
         PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new RemoveLineAction(direction) });
         model.ModifyPortalBegin();
+
+        Vector2Int target = Vector2Int.FloorToInt(model.position);
         DelayedFunctionCaller.CallAfter(PlayerModel.ModifyPortalTime, () =>
         {
-            MapPresenter.Instance.RemoveLine(Vector2Int.FloorToInt(transform.position), direction);
+            MapPresenter.Instance.RemoveLine(target, direction);
             model.ModifyPortalEnd();
         });
     }
@@ -209,7 +209,7 @@ public class PlayerPresenter : MonoBehaviour
     public bool TryActivatePortal(Vector2Int destination)
     {
         // target is valid
-        bool canActivatePortal = MapModel.Instance.CanActivatePortal(Vector2Int.FloorToInt(transform.position), destination);
+        bool canActivatePortal = MapModel.Instance.CanActivatePortal(Vector2Int.FloorToInt(model.position), destination);
         if (!canActivatePortal) return false;
         // player is ready to activate portal
         if (!model.state.canActivatePortal) return false;
@@ -221,11 +221,12 @@ public class PlayerPresenter : MonoBehaviour
     {
         PlayerActionEvent?.Invoke(this, new PlayerActionEventArgs { player = model, action = new ActivatePortalAction(destination) });
         model.ActivatePortalBegin();
+
+        Vector2Int origin = Vector2Int.FloorToInt(model.position);
+        PortalModel originPortal = MapModel.Instance.map[origin.x, origin.y].portal;
+        PortalModel destinationPortal = MapModel.Instance.map[destination.x, destination.y].portal;
         DelayedFunctionCaller.CallAfter(PlayerModel.ActivatePortalTime, () =>
         {
-            Vector2Int positionInt = Vector2Int.FloorToInt(transform.position);
-            PortalModel originPortal = MapModel.Instance.map[positionInt.x, positionInt.y].portal;
-            PortalModel destinationPortal = MapModel.Instance.map[destination.x, destination.y].portal;
             MapPresenter.Instance.ActivatePortal(originPortal, destinationPortal);
             model.ActivatePortalEnd();
         });
@@ -233,12 +234,12 @@ public class PlayerPresenter : MonoBehaviour
 
     private void ShootBullet()
     {
-        Vector2 direction = transform.rotation * Vector3.up;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, PlayerModel.BulletRange);
+        Vector2 direction = Quaternion.Euler(0, 0, model.rotation) * Vector2.up;
+        RaycastHit2D hit = Physics2D.Raycast(model.position, direction, PlayerModel.BulletRange);
 
         if (hit.collider == null)
         {
-            _view.ShootBullet(transform.position + (Vector3)direction * PlayerModel.BulletRange);
+            _view.ShootBullet(_rb2D.position + direction * PlayerModel.BulletRange);
             return;
         }
         _view.ShootBullet(hit.point);
@@ -250,22 +251,30 @@ public class PlayerPresenter : MonoBehaviour
         }
     }
 
-    private void Respawn()
+    private void Respawn(Vector2Int position)
     {
+        if (model.state.isAlive)
+        {
+            return;
+        }
+        model.Respawn(position);
         gameObject.SetActive(true);
-        model.Respawn();
     }
 
     // from model
 
     private void OnPositionChanged(object sender, Vector2 position)
     {
-        transform.position = new Vector3(position.x, position.y, 0);
+        _rb2D.position = position;
+        transform.position = position;
+        _rb2D.velocity = Vector2.zero;
     }
 
     private void OnRotationChanged(object sender, float rotation)
     {
-        transform.rotation = Quaternion.Euler(0, 0, model.rotation);
+        _rb2D.rotation = rotation;
+        transform.rotation = Quaternion.Euler(0, 0, rotation);
+        _rb2D.angularVelocity = 0;
     }
 
     private void OnDied(object sender, Team team)
@@ -276,7 +285,8 @@ public class PlayerPresenter : MonoBehaviour
         GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
 
         // Respawn after a delay
-        DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, Respawn);
+        Vector2Int position = MapModel.Instance.GetRandomPosition();
+        DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, () => Respawn(position));
     }
 }
 

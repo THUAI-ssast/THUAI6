@@ -60,8 +60,10 @@ public class Recorder : MonoSingleton<Recorder>
                 rotation = player.rotation
             });
         }
+        int processSeed = MapModel.Instance.GetProcessSeed();
         init = new
         {
+            processSeed = processSeed,
             map = mapRecord,
             players = playersRecord
         };
@@ -78,7 +80,7 @@ public class Recorder : MonoSingleton<Recorder>
             CreateNewProcessItem(frame);
         }
 
-        var actions = process[process.Count - 1].actions;
+        List<dynamic> actions = process[process.Count - 1].actions;
         actions.Add(new
         {
             playerId = player.id,
