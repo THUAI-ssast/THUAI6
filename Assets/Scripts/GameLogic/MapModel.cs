@@ -190,8 +190,13 @@ public class MapModel : Singleton<MapModel>
 
         List<PortalModel> portalsModified = new List<PortalModel>();
 
-        Action<PortalModel, LineInPortalPattern> AddLineForPortal = (portal, line) =>
+        Action<Cell, LineInPortalPattern> AddLineForCell = (cell, line) =>
         {
+            if (cell.portal == null)
+            {
+                return;
+            }
+            PortalModel portal = cell.portal;
             PortalPattern oldPattern = portal.pattern;
             if (oldPattern != 0)
             {
@@ -208,28 +213,29 @@ public class MapModel : Singleton<MapModel>
         };
 
         // add the line for all related portals
-        AddLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
         switch (direction)
         {
             case Direction.Up:
-                int currentX = cellPosition.x;
-                int currentY = cellPosition.y + 1;
-                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
+                AddLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.Center);
+                AddLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.Up);
+                AddLineForCell(map[cellPosition.x, cellPosition.y + 1], LineInPortalPattern.Down);
                 break;
             case Direction.Down:
-                currentX = cellPosition.x;
-                currentY = cellPosition.y - 1;
-                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
+                AddLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.Down);
+                AddLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.Center);
+                AddLineForCell(map[cellPosition.x, cellPosition.y - 2], LineInPortalPattern.Up);
                 break;
             case Direction.Left:
-                currentX = cellPosition.x - 1;
-                currentY = cellPosition.y;
-                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
+                AddLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.LeftDown);
+                AddLineForCell(map[cellPosition.x - 1, cellPosition.y], LineInPortalPattern.RightDown);
+                AddLineForCell(map[cellPosition.x - 1, cellPosition.y - 1], LineInPortalPattern.RightUp);
+                AddLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.LeftUp);
                 break;
             case Direction.Right:
-                currentX = cellPosition.x + 1;
-                currentY = cellPosition.y;
-                AddLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
+                AddLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.RightDown);
+                AddLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.RightUp);
+                AddLineForCell(map[cellPosition.x + 1, cellPosition.y - 1], LineInPortalPattern.LeftUp);
+                AddLineForCell(map[cellPosition.x + 1, cellPosition.y], LineInPortalPattern.LeftDown);
                 break;
         }
 
@@ -245,8 +251,13 @@ public class MapModel : Singleton<MapModel>
 
         List<PortalModel> portalsModified = new List<PortalModel>();
 
-        Action<PortalModel, LineInPortalPattern> RemoveLineForPortal = (portal, line) =>
+        Action<Cell, LineInPortalPattern> RemoveLineForCell = (cell, line) =>
         {
+            if (cell.portal == null)
+            {
+                return;
+            }
+            PortalModel portal = cell.portal;
             PortalPattern oldPattern = portal.pattern;
             portalsClassifiedByPattern[oldPattern].Remove(portal);
             portal.RemoveLine(line);
@@ -263,28 +274,29 @@ public class MapModel : Singleton<MapModel>
         };
 
         // remove the line for all related portals
-        RemoveLineForPortal(map[cellPosition.x, cellPosition.y].portal, (LineInPortalPattern)direction);
         switch (direction)
         {
             case Direction.Up:
-                int currentX = cellPosition.x;
-                int currentY = cellPosition.y + 1;
-                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Down);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.Center);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.Up);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y + 1], LineInPortalPattern.Down);
                 break;
             case Direction.Down:
-                currentX = cellPosition.x;
-                currentY = cellPosition.y - 1;
-                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Up);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.Down);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.Center);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y - 2], LineInPortalPattern.Up);
                 break;
             case Direction.Left:
-                currentX = cellPosition.x - 1;
-                currentY = cellPosition.y;
-                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Right);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.LeftDown);
+                RemoveLineForCell(map[cellPosition.x - 1, cellPosition.y], LineInPortalPattern.RightDown);
+                RemoveLineForCell(map[cellPosition.x - 1, cellPosition.y - 1], LineInPortalPattern.RightUp);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.LeftUp);
                 break;
             case Direction.Right:
-                currentX = cellPosition.x + 1;
-                currentY = cellPosition.y;
-                RemoveLineForPortal(map[currentX, currentY].portal, (LineInPortalPattern)Direction.Left);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y], LineInPortalPattern.RightDown);
+                RemoveLineForCell(map[cellPosition.x, cellPosition.y - 1], LineInPortalPattern.RightUp);
+                RemoveLineForCell(map[cellPosition.x + 1, cellPosition.y - 1], LineInPortalPattern.LeftUp);
+                RemoveLineForCell(map[cellPosition.x + 1, cellPosition.y], LineInPortalPattern.LeftDown);
                 break;
         }
 
