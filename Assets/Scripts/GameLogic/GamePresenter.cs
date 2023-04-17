@@ -5,7 +5,6 @@ public class GamePresenter : MonoSingleton<GamePresenter>
 {
     [SerializeField]
     private GameModel _model;
-    private GameView _view;
 
     public static event EventHandler GameStartEvent;
     public static event EventHandler GameEndEvent;
@@ -13,7 +12,6 @@ public class GamePresenter : MonoSingleton<GamePresenter>
     public override void Init()
     {
         _model = GameModel.Instance;
-        _view = GetComponent<GameView>();
     }
 
     // Doesn't use Start() to avoid bug from life cycle
@@ -40,8 +38,6 @@ public class GamePresenter : MonoSingleton<GamePresenter>
 
         GameEndEvent?.Invoke(this, EventArgs.Empty);
 
-        _view?.ShowResult(_model.teamScore);
-        
         if (ProgramManager.Instance.isBatchMode)
         {
             // print the result and quit

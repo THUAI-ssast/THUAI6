@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-
 using Newtonsoft.Json;
+using UnityEngine;
 
 // Note: Unity hasn't supported System.Text.Json yet, and its JsonUtility is not powerful enough.
 // So we use Newtonsoft.Json instead.
@@ -60,9 +59,11 @@ public class Recorder : MonoSingleton<Recorder>
                 rotation = player.rotation
             });
         }
+        float gameTime = GameModel.Instance.timeLeft;
         int processSeed = MapModel.Instance.GetProcessSeed();
         init = new
         {
+            gameTime = gameTime,
             processSeed = processSeed,
             map = mapRecord,
             players = playersRecord

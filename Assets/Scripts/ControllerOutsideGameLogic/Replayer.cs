@@ -3,12 +3,13 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
-public class Replayer : MonoSingleton<Replayer>
+public class Replayer : MonoBehaviour
 {
     private dynamic replayData;
     private GameModel game;
     private MapPresenter mapPresenter;
     private int processIndex = 0;
+
     public void Init(string replayPath)
     {
         game = GameModel.Instance;
@@ -26,6 +27,9 @@ public class Replayer : MonoSingleton<Replayer>
 
     void Start()
     {
+        float gameTime = replayData.init.gameTime;
+        game.SetTimeLeft(gameTime);
+
         int processSeed = replayData.init.processSeed;
         int[,] initMapData = replayData.init.map.ToObject<int[,]>();
         List<object> initPlayersData = replayData.init.players.ToObject<List<object>>();
