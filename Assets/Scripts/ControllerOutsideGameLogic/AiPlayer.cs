@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.IO;
+using System.IO.Pipes;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -36,17 +37,20 @@ class ExternalAiAdapter
 
             p.EnableRaisingEvents = false;
             p.OutputDataReceived += new DataReceivedEventHandler(DataReceived);
+            p.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceived);
 
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardInput = true;
+            p.StartInfo.RedirectStandardError = true;
 
             p.StartInfo.FileName = fileName;
             p.StartInfo.Arguments = arguments;
 
             p.Start();
             p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
 
             // Promise to close the process
             AppDomain.CurrentDomain.ProcessExit += new EventHandler((sender, args) =>
@@ -67,6 +71,11 @@ class ExternalAiAdapter
     void DataReceived(object sender, DataReceivedEventArgs eventArgs)
     {
         buffer += eventArgs.Data + '\n';
+    }
+
+    void ErrorReceived(object sender, DataReceivedEventArgs eventArgs)
+    {
+        Debug.LogError("AI error: " + eventArgs.Data);
     }
 
     public string getAction()
