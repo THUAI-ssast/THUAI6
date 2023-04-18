@@ -3,6 +3,8 @@ import random
 import sdk.action as action
 import sdk.utils as utils
 
+import time
+
 
 def init(observation):
     global map_info
@@ -17,6 +19,8 @@ def get_action(observation):
     players = observation["players"]
     bombs = observation["bombs"]
     portals = observation["portalsClassifiedByPattern"]
+
+    time.sleep(1 / 50)
 
     my_player = players[my_id]
     p = random.random()
