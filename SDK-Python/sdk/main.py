@@ -3,12 +3,15 @@ import sys
 import os
 
 import threading
+import time
 
 class Consumer(threading.Thread):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, timeout=1, **kwargs):
         super().__init__(*args, **kwargs)
         self.lines = []
+        self.last_length = 0
+        self.timeout = timeout
 
     def run(self):
         for line in sys.stdin:
@@ -20,8 +23,11 @@ class Consumer(threading.Thread):
         return self.lines[0]
 
     def get_observation(self):
-        while len(self.lines) <= 1:
-            pass
+        begin_time = time.time()
+        while len(self.lines) == self.last_length:
+            if time.time() - begin_time > self.timeout:
+                sys.exit(0) # when not receiving from main game
+        self.last_length = len(self.lines)
         return self.lines[-1]
 
 consumer = Consumer()
