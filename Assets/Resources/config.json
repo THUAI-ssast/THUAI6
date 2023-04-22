@@ -1,38 +1,26 @@
 {
     "$schema": "https://raw.githubusercontent.com/THUAI-ssast/THUAI6/main/docs/config.schema.json",
-    "timeScale": 1.0,
-    "gameTime": 300.0,
+    "timeScale": 2.0,
+    "gameTime": 30.0,
     "data": {
         "players": [
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             },
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             },
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             },
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             },
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             },
             {
-                "type": "ai",
-                "language": "python",
-                "entryPoint": "SDK-Python/sdk/main.py"
+                "command": "python SDK-Python/sdk/main.py"
             }
         ]
     }

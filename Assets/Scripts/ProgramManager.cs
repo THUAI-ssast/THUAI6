@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class Config
@@ -21,6 +23,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
 
         // Read the config
         string configString = null;
+        List<string> aiCommands = new List<string>();
         if (Application.platform == RuntimePlatform.WebGLPlayer)
         {
             configString = ReadDefaultConfig();
@@ -29,17 +32,25 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             string[] args = System.Environment.GetCommandLineArgs();
             bool hasConfigArg = false;
-            for (int i = 0; i < args.Length; i++)
+            // i = 1 to skip the first arg which is the executable path
+            for (int i = 1; i < args.Length; i++)
             {
-                if (args[i] == "--config")
+                switch (args[i])
                 {
-                    string path = args[i + 1];
-                    configString = TryReadCustomConfig(path);
-                    hasConfigArg = true;
-                }
-                if (args[i] == "-batchmode")
-                {
-                    isBatchMode = true;
+                    case "--config":
+                        string path = args[i + 1];
+                        configString = TryReadCustomConfig(path);
+                        hasConfigArg = true;
+                        // skip the next arg
+                        i++;
+                        break;
+                    case "-batchmode":
+                        isBatchMode = true;
+                        break;
+                    default:
+                        // assume it's an AI command
+                        aiCommands.Add(args[i]);
+                        break;
                 }
             }
             if (!hasConfigArg)
@@ -48,6 +59,23 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             }
         }
         configObject = JsonConvert.DeserializeObject<Config>(configString);
+        // override the data config if there are AI commands
+        if (aiCommands.Count > 0)
+        {
+            configObject.data = new JObject();
+            configObject.data.players = new JArray();
+            foreach (string command in aiCommands)
+            {
+                // one team uses the same ai command
+                for (int i = 0; i < GameModel.PlayerCountEachTeam; i++)
+                {
+                    configObject.data.players.Add(new JObject()
+                    {
+                        { "command", command }
+                    });
+                }
+            }
+        }
     }
 
     private void Start()
@@ -58,12 +86,12 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             Time.timeScale = configObject.timeScale;
         }
 
-        if (configObject.data.replayPath != null)
+        if (configObject.data.ContainsKey("replayPath"))
         {
             Replayer replayer = gameObject.AddComponent<Replayer>();
             replayer.Init((string)configObject.data.replayPath);
         }
-        else if (configObject.data.players != null)
+        else if (configObject.data.ContainsKey("players"))
         {
             gameObject.AddComponent<Recorder>();
             if (configObject.gameTime != 0.0f)
@@ -75,7 +103,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             {
                 dynamic playerConfig = configObject.data.players[playerId];
                 GameObject playerObject = MapPresenter.Instance.GetPlayerObject(playerId);
-                if (playerConfig.type == "ai")
+                if (playerConfig.ContainsKey("command"))
                 {
                     // set up AI player
                     AiPlayer aiPlayer = playerObject.AddComponent<AiPlayer>();

@@ -38,8 +38,14 @@
 ./THUAI6 --config config-replay.json
 ```
 
+也可在命令行中直接传入两队所有的AI，如：
+
+```shell
+./THUAI6 "python ./THUAI6-SDK-Python/sdk/main.py" "python ./THUAI6-SDK-Python/sdk/main.py"
+```
+
 > **Note**
-> 似乎 Windows 平台下用命令行直接启动播放器而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若带参数则无此限制。暂未知原因。
+> 似乎 Windows 平台下用命令行开启对局而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若只是回放则均可。暂未知原因。
 > 可以双击打开播放器，或使用 `PowerShell`。
 
 可传入 `-batchmode` 参数，使播放器在运行时不显示窗口。
