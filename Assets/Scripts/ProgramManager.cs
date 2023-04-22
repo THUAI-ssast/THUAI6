@@ -58,12 +58,12 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             Time.timeScale = configObject.timeScale;
         }
 
-        if (configObject.data.replayPath != null)
+        if (configObject.data.ContainsKey("replayPath"))
         {
             Replayer replayer = gameObject.AddComponent<Replayer>();
             replayer.Init((string)configObject.data.replayPath);
         }
-        else if (configObject.data.players != null)
+        else if (configObject.data.ContainsKey("players"))
         {
             gameObject.AddComponent<Recorder>();
             if (configObject.gameTime != 0.0f)
@@ -75,7 +75,7 @@ public class ProgramManager : MonoSingleton<ProgramManager>
             {
                 dynamic playerConfig = configObject.data.players[playerId];
                 GameObject playerObject = MapPresenter.Instance.GetPlayerObject(playerId);
-                if (playerConfig.type == "ai")
+                if (playerConfig.ContainsKey("command"))
                 {
                     // set up AI player
                     AiPlayer aiPlayer = playerObject.AddComponent<AiPlayer>();

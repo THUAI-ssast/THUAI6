@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -28,7 +28,7 @@ class ExternalAiAdapter
     private Process p = null;
     private string buffer = "";
     private List<string> actionList = new List<string>();
-    public ExternalAiAdapter(string fileName, string arguments)
+    public ExternalAiAdapter(string command)
     {
         try
         {
@@ -42,6 +42,10 @@ class ExternalAiAdapter
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardInput = true;
 
+            // get string fileNames and string arguments from string command
+            string[] commandParts = command.Split(' ');
+            string fileName = commandParts[0];
+            string arguments = string.Join(" ", commandParts.Skip(1));
             p.StartInfo.FileName = fileName;
             p.StartInfo.Arguments = arguments;
 
@@ -134,18 +138,7 @@ public class AiPlayer : MonoBehaviour
     {
         this.playerId = playerId;
 
-        if (config.language == "python")
-        {
-            adapter = new ExternalAiAdapter("python", (string)config.entryPoint);
-        }
-        else if (config.language == "cpp")
-        {
-            // TODO: implement
-        }
-        else
-        {
-            Debug.LogError("Unknown language: " + config.language);
-        }
+        adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
         adapter.sendObservation(EncodeStartObservation());

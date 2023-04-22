@@ -30,22 +30,12 @@
                                                     "ai"
                                                 ]
                                             },
-                                            "language": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "cpp",
-                                                    "python"
-                                                ]
-                                            },
-                                            "entryPoint": {
-                                                "type": "string",
-                                                "description": "Relative to the player's directory"
+                                            "command": {
+                                                "type": "string"
                                             }
                                         },
                                         "required": [
-                                            "type",
-                                            "language",
-                                            "entryPoint"
+                                            "command"
                                         ],
                                         "additionalProperties": false
                                     },
