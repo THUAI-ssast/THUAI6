@@ -46,7 +46,8 @@ class ExternalAiAdapter
             p.StartInfo.RedirectStandardError = true;
 
             p.StartInfo.FileName = fileName;
-            p.StartInfo.Arguments = arguments;
+            if (arguments != "")
+                p.StartInfo.Arguments = arguments;
 
             p.Start();
             p.BeginOutputReadLine();
@@ -149,7 +150,7 @@ public class AiPlayer : MonoBehaviour
         }
         else if (config.language == "cpp")
         {
-            // TODO: implement
+            adapter = new ExternalAiAdapter((string)config.entryPoint, "");
         }
         else
         {
