@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -91,21 +92,26 @@ class ExternalAiAdapter
         }
     }
 
-    public void sendObservation(string observation)
+    // Use async to avoid blocking the main thread
+    public async Task SendObservationAsync(string observation)
     {
         if (p.HasExited)
         {
             return;
         }
-        try
+
+        await Task.Run(() =>
         {
-            p.StandardInput.WriteLine(observation);
-            p.StandardInput.Flush();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Failed to send observation: " + e);
-        }
+            try
+            {
+                p.StandardInput.WriteLineAsync(observation);
+                p.StandardInput.FlushAsync();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Failed to send observation: " + e);
+            }
+        });
     }
 
     public void Close()
@@ -144,17 +150,17 @@ public class AiPlayer : MonoBehaviour
     }
 
     // Assign the player that this AI should control
-    public void Init(int playerId, dynamic config)
+    public async void Init(int playerId, dynamic config)
     {
         this.playerId = playerId;
 
         adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
-        adapter.sendObservation(EncodeStartObservation());
+        await adapter.SendObservationAsync(EncodeStartObservation());
     }
 
-    void FixedUpdate()
+    async void FixedUpdate()
     {
         // Consume action from agent
         List<string> actionStringList = adapter.getActions();
@@ -172,7 +178,7 @@ public class AiPlayer : MonoBehaviour
         }
 
         // Send observation to agent
-        adapter.sendObservation(EncodeRoutineObservation());
+        await adapter.SendObservationAsync(EncodeRoutineObservation());
 
         // Clear actions outdated too much
         // The more actions in the queue, the less tolerance we have, to compensate for the lag
