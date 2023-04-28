@@ -69,6 +69,8 @@ public class PlayerModel
     public event EventHandler<float> RotationChangedEvent;
     public event EventHandler<Team> DiedEvent;
 
+    public event EventHandler<int> HpChangedEvent;
+
     public int id
     { get; private set; } // unique for each player
     public Team team { get; private set; }
@@ -143,6 +145,10 @@ public class PlayerModel
         {
             hp = 0;
             Die();
+        }
+        else
+        {
+            HpChangedEvent?.Invoke(this, hp);
         }
     }
 
