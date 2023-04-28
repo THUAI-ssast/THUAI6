@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 
 public class PlayerActionEventArgs : EventArgs
 {
@@ -32,8 +33,16 @@ public class PlayerPresenter : MonoBehaviour
             }
         }
     }
+
+    public GameObject IDPrefab;
+    public GameObject healthBarPrefab;
     private PlayerView _view;
     private Rigidbody2D _rb2D;
+    private GameObject _canvas;
+    
+    private GameObject _ID;
+
+    private GameObject _healthBar;
 
     public static event EventHandler<PlayerActionEventArgs> PlayerActionEvent;
 
@@ -41,6 +50,19 @@ public class PlayerPresenter : MonoBehaviour
     {
         _view = GetComponent<PlayerView>();
         _rb2D = GetComponent<Rigidbody2D>();
+        _canvas = GameObject.Find("Canvas");
+    }
+
+    void Start()
+    {
+        _ID=Instantiate(IDPrefab,_canvas.transform);
+
+        
+        // _ID.GetComponent<TextMeshProUGUI>().text=model.id.ToString();
+
+        _healthBar=Instantiate(healthBarPrefab);
+
+        UpdateHBAndIDPosition();
     }
 
     public void SetModel(PlayerModel model)
@@ -259,6 +281,8 @@ public class PlayerPresenter : MonoBehaviour
         }
         model.Respawn(position);
         gameObject.SetActive(true);
+        _ID.SetActive(true);
+        _healthBar.SetActive(true);
     }
 
     // from model
@@ -267,6 +291,7 @@ public class PlayerPresenter : MonoBehaviour
     {
         _rb2D.position = position;
         transform.position = position;
+        UpdateHBAndIDPosition();
         _rb2D.velocity = Vector2.zero;
     }
 
@@ -280,6 +305,8 @@ public class PlayerPresenter : MonoBehaviour
     private void OnDied(object sender, Team team)
     {
         gameObject.SetActive(false);
+        _ID.SetActive(false);
+        _healthBar.SetActive(false);
 
         // The enemy team gets a point
         GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
@@ -288,7 +315,22 @@ public class PlayerPresenter : MonoBehaviour
         Vector2Int position = MapModel.Instance.GetRandomPosition();
         DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, () => Respawn(position));
     }
+
+    private void OnHpChanged(object sender, int hp)
+    {
+        UpdateHB(hp);
+    }
+
+    private void UpdateHBAndIDPosition(){
+        _ID.transform.position = _view.transform.position + new Vector3(-0.8f, 0.2f, 0);
+        _healthBar.transform.position = _view.transform.position + new Vector3(0, 0.9f, 0);
+    }
+
+    private void UpdateHB(int hp){
+        _healthBar.transform.localScale= new Vector3(1.3f*hp/PlayerModel.MaxHp, 0.15f, 1);
+    }
 }
+
 
 public class MoveAction
 {

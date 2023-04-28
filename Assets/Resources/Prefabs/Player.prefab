@@ -134,6 +134,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466aaa089e849614fb3be1cba4604ef3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IDPrefab: {fileID: 2321302559497389062, guid: 46815936c9c28bc4e9146aa522d4123e, type: 3}
+  healthBarPrefab: {fileID: 910829968391769531, guid: fae3426cc945dac4980691d4a134f5af, type: 3}
 --- !u!61 &-5121683874150813708
 BoxCollider2D:
   m_ObjectHideFlags: 0
