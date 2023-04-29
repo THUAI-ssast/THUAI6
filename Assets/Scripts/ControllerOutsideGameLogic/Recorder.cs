@@ -8,10 +8,10 @@ using UnityEngine;
 
 public class Recorder : MonoSingleton<Recorder>
 {
+    public int[] result { get; private set; }
     public dynamic init { get; private set; }
     public List<dynamic> process { get; private set; }
     public List<dynamic> actions { get; private set; }
-    public int[] result { get; private set; }
 
     private GameModel _game;
 
@@ -125,9 +125,9 @@ public class Recorder : MonoSingleton<Recorder>
 
         string jsonString = JsonConvert.SerializeObject(new
         {
+            result = result,
             init = init,
             process = process,
-            result = result
         }, Formatting.None, settings);
 
         // save the data to a json file
