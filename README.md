@@ -45,8 +45,9 @@
 ```
 
 > **Note**
-> 似乎 Windows 平台下用命令行开启对局而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若只是回放则均可。暂未知原因。
+> 似乎 Windows 平台下用命令行开启对局而时必须使用 `PowerShell`，不能使用 `cmd` 或者 `git bash`，否则 AI 无法正常运行。若只是回放则均可。暂未知原因，奋战许久也未能解决，只能妥协。
 > 可以双击打开播放器，或使用 `PowerShell`。
+> 也可在其他终端中使用 PowerShell 启动播放器：`powershell Start-Process <Program> -ArgumentList "<Argv1>", "<Argv2>"`
 
 可传入 `-batchmode` 参数，使播放器在运行时不显示窗口。
 
