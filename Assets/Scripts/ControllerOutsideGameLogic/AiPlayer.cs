@@ -105,12 +105,12 @@ class ExternalAiAdapter
             try
             {
                 p.StandardInput.WriteLineAsync(observation);
-                p.StandardInput.FlushAsync();
             }
             catch (System.Exception e)
             {
                 Debug.LogError("Failed to send observation: " + e);
             }
+            p.StandardInput.FlushAsync();
         });
     }
 
