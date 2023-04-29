@@ -150,17 +150,17 @@ public class AiPlayer : MonoBehaviour
     }
 
     // Assign the player that this AI should control
-    public async void Init(int playerId, dynamic config)
+    public void Init(int playerId, dynamic config)
     {
         this.playerId = playerId;
 
         adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
-        await adapter.SendObservationAsync(EncodeStartObservation());
+        adapter.SendObservationAsync(EncodeStartObservation());
     }
 
-    async void FixedUpdate()
+    void FixedUpdate()
     {
         // Consume action from agent
         List<string> actionStringList = adapter.getActions();
@@ -178,7 +178,7 @@ public class AiPlayer : MonoBehaviour
         }
 
         // Send observation to agent
-        await adapter.SendObservationAsync(EncodeRoutineObservation());
+        adapter.SendObservationAsync(EncodeRoutineObservation());
 
         // Clear actions outdated too much
         // The more actions in the queue, the less tolerance we have, to compensate for the lag
