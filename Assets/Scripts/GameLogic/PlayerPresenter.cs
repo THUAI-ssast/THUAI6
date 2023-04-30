@@ -57,8 +57,7 @@ public class PlayerPresenter : MonoBehaviour
     {
         _ID=Instantiate(IDPrefab,_canvas.transform);
 
-        
-        // _ID.GetComponent<TextMeshProUGUI>().text=model.id.ToString();
+        _ID.GetComponent<TextMeshProUGUI>().text=model.id.ToString();
 
         _healthBar=Instantiate(healthBarPrefab);
 
@@ -80,6 +79,8 @@ public class PlayerPresenter : MonoBehaviour
         // Preserve the model is consistent with the game object
         model.position = _rb2D.position;
         model.rotation = _rb2D.rotation;
+        UpdateHB();
+        UpdateHBAndIDPosition();
     }
 
     // 1. Check if the player can perform the action
@@ -316,18 +317,15 @@ public class PlayerPresenter : MonoBehaviour
         DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, () => Respawn(position));
     }
 
-    private void OnHpChanged(object sender, int hp)
-    {
-        UpdateHB(hp);
-    }
-
     private void UpdateHBAndIDPosition(){
-        _ID.transform.position = _view.transform.position + new Vector3(-0.8f, 0.2f, 0);
-        _healthBar.transform.position = _view.transform.position + new Vector3(0, 0.9f, 0);
+        _ID.transform.position = gameObject.transform.position + new Vector3(-0.8f, 0.2f, 0);
+        _healthBar.transform.position = gameObject.transform.position + new Vector3(0, 0.9f, 0);
     }
 
-    private void UpdateHB(int hp){
-        _healthBar.transform.localScale= new Vector3(1.3f*hp/PlayerModel.MaxHp, 0.15f, 1);
+    private void UpdateHB(){
+         float newLength=1.3f*model.hp/PlayerModel.MaxHp;
+         if(newLength<0) newLength=0;
+        _healthBar.transform.localScale= new Vector3(newLength, 0.15f, 1);
     }
 }
 
