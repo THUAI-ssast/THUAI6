@@ -50,7 +50,7 @@ public class PlayerPresenter : MonoBehaviour
     {
         _view = GetComponent<PlayerView>();
         _rb2D = GetComponent<Rigidbody2D>();
-        _canvas = GameObject.Find("Canvas");
+        _canvas = GameObject.Find("CanvasInMap");
     }
 
     void Start()
