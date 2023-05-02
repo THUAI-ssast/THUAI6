@@ -326,14 +326,14 @@ public class PlayerPresenter : MonoBehaviour
     private void UpdateHBAndIDPosition()
     {
         _ID.transform.position = gameObject.transform.position + new Vector3(-0.8f, 0.2f, 0);
-        _healthBar.transform.position = gameObject.transform.position + new Vector3(0, 0.9f, 0);
+        _healthBar.transform.position = gameObject.transform.position + new Vector3(0, 0.5f, 0);
     }
 
     private void UpdateHB()
     {
-        float newLength = 1.3f * model.hp / PlayerModel.MaxHp;
+        float newLength = 1f * model.hp / PlayerModel.MaxHp;
         if (newLength < 0) newLength = 0;
-        _healthBar.transform.localScale = new Vector3(newLength, 0.15f, 1);
+        _healthBar.transform.localScale = new Vector3(newLength, 0.05f, 1);
     }
 }
 
