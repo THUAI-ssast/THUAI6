@@ -1,6 +1,6 @@
 using System;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class PlayerActionEventArgs : EventArgs
 {
@@ -39,7 +39,7 @@ public class PlayerPresenter : MonoBehaviour
     private PlayerView _view;
     private Rigidbody2D _rb2D;
     private GameObject _canvas;
-    
+
     private GameObject _ID;
 
     private GameObject _healthBar;
@@ -55,11 +55,11 @@ public class PlayerPresenter : MonoBehaviour
 
     void Start()
     {
-        _ID=Instantiate(IDPrefab,_canvas.transform);
+        _ID = Instantiate(IDPrefab, _canvas.transform);
 
-        _ID.GetComponent<TextMeshProUGUI>().text=model.id.ToString();
+        _ID.GetComponent<TextMeshProUGUI>().text = model.id.ToString();
 
-        _healthBar=Instantiate(healthBarPrefab);
+        _healthBar = Instantiate(healthBarPrefab);
 
         UpdateHBAndIDPosition();
     }
@@ -79,6 +79,9 @@ public class PlayerPresenter : MonoBehaviour
         // Preserve the model is consistent with the game object
         model.position = _rb2D.position;
         model.rotation = _rb2D.rotation;
+        _rb2D.velocity = Vector2.zero;
+        _rb2D.angularVelocity = 0;
+
         UpdateHB();
         UpdateHBAndIDPosition();
     }
@@ -102,8 +105,9 @@ public class PlayerPresenter : MonoBehaviour
         // Make the game object move
 
         Vector2 directionVector = Quaternion.Euler(0, 0, model.rotation) * Vector2.up * (direction == ForwardOrBackward.Forward ? 1 : -1);
-        _rb2D.position += directionVector * PlayerModel.MaxVelocity * Time.fixedDeltaTime;
-
+        _rb2D.MovePosition(_rb2D.position + directionVector * PlayerModel.MaxVelocity * Time.fixedDeltaTime);
+        _rb2D.velocity = Vector2.zero;
+        _rb2D.angularVelocity = 0;
         // Model is updated in FixedUpdate
     }
 
@@ -120,8 +124,9 @@ public class PlayerPresenter : MonoBehaviour
 
         // Make the game object rotate
         float angle = PlayerModel.RotationSpeed * Time.fixedDeltaTime * (direction == LeftOrRight.Left ? 1 : -1);
-        _rb2D.rotation += angle;
-
+        _rb2D.MoveRotation(_rb2D.rotation + angle);
+        _rb2D.velocity = Vector2.zero;
+        _rb2D.angularVelocity = 0;
         // Model is updated in FixedUpdate
     }
 
@@ -291,15 +296,16 @@ public class PlayerPresenter : MonoBehaviour
     private void OnPositionChanged(object sender, Vector2 position)
     {
         _rb2D.position = position;
-        transform.position = position;
-        UpdateHBAndIDPosition();
         _rb2D.velocity = Vector2.zero;
+        _rb2D.angularVelocity = 0;
+
+        UpdateHBAndIDPosition();
     }
 
     private void OnRotationChanged(object sender, float rotation)
     {
         _rb2D.rotation = rotation;
-        transform.rotation = Quaternion.Euler(0, 0, rotation);
+        _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
     }
 
@@ -317,15 +323,17 @@ public class PlayerPresenter : MonoBehaviour
         DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, () => Respawn(position));
     }
 
-    private void UpdateHBAndIDPosition(){
+    private void UpdateHBAndIDPosition()
+    {
         _ID.transform.position = gameObject.transform.position + new Vector3(-0.8f, 0.2f, 0);
         _healthBar.transform.position = gameObject.transform.position + new Vector3(0, 0.9f, 0);
     }
 
-    private void UpdateHB(){
-         float newLength=1.3f*model.hp/PlayerModel.MaxHp;
-         if(newLength<0) newLength=0;
-        _healthBar.transform.localScale= new Vector3(newLength, 0.15f, 1);
+    private void UpdateHB()
+    {
+        float newLength = 1.3f * model.hp / PlayerModel.MaxHp;
+        if (newLength < 0) newLength = 0;
+        _healthBar.transform.localScale = new Vector3(newLength, 0.15f, 1);
     }
 }
 

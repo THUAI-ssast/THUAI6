@@ -47,7 +47,7 @@ public class PlayerModel
     // TODO: to be decided
     // unit: meter, second, degree
     public const float MaxVelocity = 4.0f;
-    public const float RotationSpeed = 600.0f;
+    public const float RotationSpeed = 150.0f;
 
     public const int MaxHp = 100;
     public const int MaxAmmo = 30;

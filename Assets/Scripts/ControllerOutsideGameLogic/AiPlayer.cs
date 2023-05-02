@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -25,29 +26,33 @@ struct RoutineObservation
 
 class ExternalAiAdapter
 {
+    const int ACTIONS_CAPACITY = 5;
+
     private Process p = null;
-    private string buffer = "";
-    private List<string> actionList = new List<string>();
+    private Queue<string> actionsCached = new Queue<string>(ACTIONS_CAPACITY);
     public ExternalAiAdapter(string command)
     {
         try
         {
-            p = new Process();
-
-            p.EnableRaisingEvents = false;
-            p.OutputDataReceived += new DataReceivedEventHandler(DataReceived);
-
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardInput = true;
-
             // get string fileNames and string arguments from string command
             string[] commandParts = command.Split(' ');
             string fileName = commandParts[0];
             string arguments = string.Join(" ", commandParts.Skip(1));
-            p.StartInfo.FileName = fileName;
-            p.StartInfo.Arguments = arguments;
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+            };
+
+            p = new Process();
+            p.StartInfo = startInfo;
+
+            p.EnableRaisingEvents = false;
+            p.OutputDataReceived += new DataReceivedEventHandler(DataReceived);
 
             p.Start();
             p.BeginOutputReadLine();
@@ -68,33 +73,60 @@ class ExternalAiAdapter
         }
     }
 
-    void DataReceived(object sender, DataReceivedEventArgs eventArgs)
+    void DataReceived(object sender, DataReceivedEventArgs e)
     {
-        buffer += eventArgs.Data + '\n';
+        if (!string.IsNullOrEmpty(e.Data))
+        {
+            lock (actionsCached)
+            {
+
+                actionsCached.Enqueue(e.Data);
+                if (actionsCached.Count > ACTIONS_CAPACITY)
+                {
+                    actionsCached.Dequeue();
+                }
+            }
+        }
     }
 
     public string getAction()
     {
-        string action = buffer;
-        buffer = "";
-        actionList.Add(action);
-        return action;
+        lock (actionsCached)
+        {
+            if (actionsCached.Count > 0)
+            {
+                return actionsCached.Dequeue();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
-    public void sendObservation(string observation)
+    // Use async to avoid blocking the main thread
+    public async Task SendObservationAsync(string observation)
     {
         if (p.HasExited)
         {
             return;
         }
+
         try
         {
-            p.StandardInput.WriteLine(observation);
-            p.StandardInput.Flush();
+            await p.StandardInput.WriteLineAsync(observation);
         }
         catch (System.Exception e)
         {
             Debug.LogError("Failed to send observation: " + e);
+        }
+        try
+        {
+            await p.StandardInput.FlushAsync();
+        }
+        catch (System.Exception _)
+        {
+            // ignore
         }
     }
 
@@ -114,8 +146,6 @@ public class AiPlayer : MonoBehaviour
     int playerId;
     ExternalAiAdapter adapter;
 
-    Queue<dynamic> actionQueue;
-
     void Awake()
     {
         settings = new JsonSerializerSettings
@@ -123,55 +153,43 @@ public class AiPlayer : MonoBehaviour
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
             {
-                // errors.Add(args.ErrorContext.Error.Message);
                 args.ErrorContext.Handled = true;
             }
         };
         settings.Converters.Add(new Vector2Converter());
         settings.Converters.Add(new Vector2IntConverter());
-
-        actionQueue = new Queue<dynamic>();
     }
 
     // Assign the player that this AI should control
-    public void Init(int playerId, dynamic config)
+    public async void Init(int playerId, dynamic config)
     {
         this.playerId = playerId;
 
         adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
-        adapter.sendObservation(EncodeStartObservation());
+        await adapter.SendObservationAsync(EncodeStartObservation());
     }
 
-    void FixedUpdate()
+    private void TryGetAndInterpretAction()
     {
-        // Consume action from agent
+        // Get action from agent
         string actionString = adapter.getAction();
-        foreach (string action in actionString.Split('\n'))
+        if (string.IsNullOrEmpty(actionString))
         {
-            if (action == "")
-                continue;
-
-            dynamic actionObj = JsonConvert.DeserializeObject(action);
-            if (actionObj != null)
-            {
-                actionQueue.Enqueue(actionObj);
-            }
-            else
-            {
-                Debug.LogWarning("Invalid action: " + action);
-            }
+            return;
         }
+        dynamic action = JsonConvert.DeserializeObject(actionString);
+        MapPresenter.Instance.InterpretAction(playerId, action);
+    }
+
+    private async void FixedUpdate()
+    {
+        TryGetAndInterpretAction();
+        // To preserve ai can see the effect of **its** action, we send observation after the action is interpreted
 
         // Send observation to agent
-        adapter.sendObservation(EncodeRoutineObservation());
-
-        // Invoke action
-        if (actionQueue.Count > 0 && actionQueue.Peek().frame <= GameModel.Instance.frame)
-        {
-            MapPresenter.Instance.InterpretAction(playerId, actionQueue.Dequeue());
-        }
+        await adapter.SendObservationAsync(EncodeRoutineObservation());
     }
 
     private string EncodeStartObservation()
