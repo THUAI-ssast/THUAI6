@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 public class PlayerActionEventArgs : EventArgs
@@ -32,8 +33,16 @@ public class PlayerPresenter : MonoBehaviour
             }
         }
     }
+
+    public GameObject IDPrefab;
+    public GameObject healthBarPrefab;
     private PlayerView _view;
     private Rigidbody2D _rb2D;
+    private GameObject _canvas;
+
+    private GameObject _ID;
+
+    private GameObject _healthBar;
 
     public static event EventHandler<PlayerActionEventArgs> PlayerActionEvent;
 
@@ -41,6 +50,18 @@ public class PlayerPresenter : MonoBehaviour
     {
         _view = GetComponent<PlayerView>();
         _rb2D = GetComponent<Rigidbody2D>();
+        _canvas = GameObject.Find("CanvasInMap");
+    }
+
+    void Start()
+    {
+        _ID = Instantiate(IDPrefab, _canvas.transform);
+
+        _ID.GetComponent<TextMeshProUGUI>().text = model.id.ToString();
+
+        _healthBar = Instantiate(healthBarPrefab);
+
+        UpdateHBAndIDPosition();
     }
 
     public void SetModel(PlayerModel model)
@@ -60,6 +81,9 @@ public class PlayerPresenter : MonoBehaviour
         model.rotation = _rb2D.rotation;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
+
+        UpdateHB();
+        UpdateHBAndIDPosition();
     }
 
     // 1. Check if the player can perform the action
@@ -263,6 +287,8 @@ public class PlayerPresenter : MonoBehaviour
         }
         model.Respawn(position);
         gameObject.SetActive(true);
+        _ID.SetActive(true);
+        _healthBar.SetActive(true);
     }
 
     // from model
@@ -272,6 +298,8 @@ public class PlayerPresenter : MonoBehaviour
         _rb2D.position = position;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
+
+        UpdateHBAndIDPosition();
     }
 
     private void OnRotationChanged(object sender, float rotation)
@@ -284,6 +312,8 @@ public class PlayerPresenter : MonoBehaviour
     private void OnDied(object sender, Team team)
     {
         gameObject.SetActive(false);
+        _ID.SetActive(false);
+        _healthBar.SetActive(false);
 
         // The enemy team gets a point
         GameModel.Instance.AddScore(team.GetOppositeTeam(), 1);
@@ -292,7 +322,21 @@ public class PlayerPresenter : MonoBehaviour
         Vector2Int position = MapModel.Instance.GetRandomPosition();
         DelayedFunctionCaller.CallAfter(PlayerModel.RespawnTime, () => Respawn(position));
     }
+
+    private void UpdateHBAndIDPosition()
+    {
+        _ID.transform.position = gameObject.transform.position + new Vector3(-0.8f, 0.2f, 0);
+        _healthBar.transform.position = gameObject.transform.position + new Vector3(0, 0.5f, 0);
+    }
+
+    private void UpdateHB()
+    {
+        float newLength = 1f * model.hp / PlayerModel.MaxHp;
+        if (newLength < 0) newLength = 0;
+        _healthBar.transform.localScale = new Vector3(newLength, 0.05f, 1);
+    }
 }
+
 
 public class MoveAction
 {
