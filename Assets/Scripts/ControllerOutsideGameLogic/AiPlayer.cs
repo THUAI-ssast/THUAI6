@@ -26,8 +26,10 @@ struct RoutineObservation
 
 class ExternalAiAdapter
 {
+    const int ACTIONS_CAPACITY = 5;
+
     private Process p = null;
-    private List<string> actionList = new List<string>();
+    private Queue<string> actionsCached = new Queue<string>(ACTIONS_CAPACITY);
     public ExternalAiAdapter(string command)
     {
         try
@@ -75,20 +77,30 @@ class ExternalAiAdapter
     {
         if (!string.IsNullOrEmpty(e.Data))
         {
-            lock (actionList)
+            lock (actionsCached)
             {
-                actionList.Add(e.Data);
+
+                actionsCached.Enqueue(e.Data);
+                if (actionsCached.Count > ACTIONS_CAPACITY)
+                {
+                    actionsCached.Dequeue();
+                }
             }
         }
     }
 
-    public List<string> getActions()
+    public string getAction()
     {
-        lock (actionList)
+        lock (actionsCached)
         {
-            List<string> actions = new List<string>(actionList);
-            actionList.Clear();
-            return actions;
+            if (actionsCached.Count > 0)
+            {
+                return actionsCached.Dequeue();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 
@@ -100,18 +112,22 @@ class ExternalAiAdapter
             return;
         }
 
-        await Task.Run(() =>
+        try
         {
-            try
-            {
-                p.StandardInput.WriteLineAsync(observation);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Failed to send observation: " + e);
-            }
-            p.StandardInput.FlushAsync();
-        });
+            await p.StandardInput.WriteLineAsync(observation);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to send observation: " + e);
+        }
+        try
+        {
+            await p.StandardInput.FlushAsync();
+        }
+        catch (System.Exception _)
+        {
+            // ignore
+        }
     }
 
     public void Close()
@@ -130,8 +146,6 @@ public class AiPlayer : MonoBehaviour
     int playerId;
     ExternalAiAdapter adapter;
 
-    Queue<dynamic> actionQueue;
-
     void Awake()
     {
         settings = new JsonSerializerSettings
@@ -139,59 +153,43 @@ public class AiPlayer : MonoBehaviour
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
             {
-                // errors.Add(args.ErrorContext.Error.Message);
                 args.ErrorContext.Handled = true;
             }
         };
         settings.Converters.Add(new Vector2Converter());
         settings.Converters.Add(new Vector2IntConverter());
-
-        actionQueue = new Queue<dynamic>();
     }
 
     // Assign the player that this AI should control
-    public void Init(int playerId, dynamic config)
+    public async void Init(int playerId, dynamic config)
     {
         this.playerId = playerId;
 
         adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
-        adapter.SendObservationAsync(EncodeStartObservation());
+        await adapter.SendObservationAsync(EncodeStartObservation());
     }
 
-    void FixedUpdate()
+    private void TryGetAndInterpretAction()
     {
-        // Consume action from agent
-        List<string> actionStringList = adapter.getActions();
-        foreach (string actionString in actionStringList)
+        // Get action from agent
+        string actionString = adapter.getAction();
+        if (string.IsNullOrEmpty(actionString))
         {
-            dynamic action = JsonConvert.DeserializeObject(actionString);
-            if (action != null)
-            {
-                actionQueue.Enqueue(action);
-            }
-            else
-            {
-                Debug.LogWarning("Invalid action: " + actionString);
-            }
+            return;
         }
+        dynamic action = JsonConvert.DeserializeObject(actionString);
+        MapPresenter.Instance.InterpretAction(playerId, action);
+    }
+
+    private async void FixedUpdate()
+    {
+        TryGetAndInterpretAction();
+        // To preserve ai can see the effect of **its** action, we send observation after the action is interpreted
 
         // Send observation to agent
-        adapter.SendObservationAsync(EncodeRoutineObservation());
-
-        // Clear actions outdated too much
-        // The more actions in the queue, the less tolerance we have, to compensate for the lag
-        // Note: but if the agent is always lagging, the bottleneck could be not here but input buffer
-        while (actionQueue.Count > 0 && actionQueue.Peek().frame < GameModel.Instance.frame - 50 / actionQueue.Count)
-        {
-            actionQueue.Dequeue();
-        }
-        // Invoke one action if it's time
-        if (actionQueue.Count > 0 && actionQueue.Peek().frame <= GameModel.Instance.frame)
-        {
-            MapPresenter.Instance.InterpretAction(playerId, actionQueue.Dequeue());
-        }
+        await adapter.SendObservationAsync(EncodeRoutineObservation());
     }
 
     private string EncodeStartObservation()
