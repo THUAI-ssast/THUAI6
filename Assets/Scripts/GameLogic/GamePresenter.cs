@@ -40,8 +40,6 @@ public class GamePresenter : MonoSingleton<GamePresenter>
 
         if (ProgramManager.Instance.isBatchMode)
         {
-            // print the result and quit
-            // TODO: how to print the result?
             Application.Quit();
         }
     }
