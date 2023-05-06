@@ -115,6 +115,11 @@ public class ProgramManager : MonoSingleton<ProgramManager>
                 }
             }
         }
+        else
+        {
+            Debug.LogError("No data config found! Quitting...");
+            Application.Quit();
+        }
         GamePresenter.Instance.GameStart();
     }
 
