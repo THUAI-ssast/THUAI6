@@ -101,11 +101,6 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         Time.timeScale = 0.0f;
 
         // Set up the game accordingly
-        if (configObject.timeScale != 0.0f)
-        {
-            Time.timeScale = configObject.timeScale;
-        }
-
         if (configObject.data.ContainsKey("replayPath"))
         {
             Replayer replayer = gameObject.AddComponent<Replayer>();
@@ -139,6 +134,14 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             Debug.LogError("No data config found! Quitting...");
             Application.Quit();
+        }
+        if (configObject.timeScale != 0.0f)
+        {
+            Time.timeScale = configObject.timeScale;
+        }
+        else
+        {
+            Time.timeScale = 1.0f;
         }
         GamePresenter.Instance.GameStart();
     }
