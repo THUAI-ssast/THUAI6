@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -64,15 +65,32 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             configObject.data = new JObject();
             configObject.data.players = new JArray();
-            foreach (string command in aiCommands)
+            for (int i = 0; i < aiCommands.Count; i++)
             {
-                // one team uses the same ai command
-                for (int i = 0; i < GameModel.PlayerCountEachTeam; i++)
+                string command = aiCommands[i];
+                if (command.StartsWith("isolate --run -b"))
                 {
-                    configObject.data.players.Add(new JObject()
+                    // old command: isolate --run -b <num> <other part>
+                    // new command: isolate --run -b <playerId> <other part>
+                    for (int j = 0; j < GameModel.PlayerCountEachTeam; j++)
                     {
-                        { "command", command }
-                    });
+                        int playerId = i * GameModel.PlayerCountEachTeam + j;
+                        configObject.data.players.Add(new JObject()
+                        {
+                            { "command", Regex.Replace(command, "-b \\d+", "-b " + playerId) }
+                        });
+                    }
+                }
+                else
+                {
+                    // one team uses the same ai command
+                    for (int j = 0; j < GameModel.PlayerCountEachTeam; j++)
+                    {
+                        configObject.data.players.Add(new JObject()
+                        {
+                            { "command", command }
+                        });
+                    }
                 }
             }
         }
@@ -80,12 +98,9 @@ public class ProgramManager : MonoSingleton<ProgramManager>
 
     private void Start()
     {
-        // Set up the game accordingly
-        if (configObject.timeScale != 0.0f)
-        {
-            Time.timeScale = configObject.timeScale;
-        }
+        Time.timeScale = 0.0f;
 
+        // Set up the game accordingly
         if (configObject.data.ContainsKey("replayPath"))
         {
             Replayer replayer = gameObject.AddComponent<Replayer>();
@@ -119,6 +134,14 @@ public class ProgramManager : MonoSingleton<ProgramManager>
         {
             Debug.LogError("No data config found! Quitting...");
             Application.Quit();
+        }
+        if (configObject.timeScale != 0.0f)
+        {
+            Time.timeScale = configObject.timeScale;
+        }
+        else
+        {
+            Time.timeScale = 1.0f;
         }
         GamePresenter.Instance.GameStart();
     }
