@@ -112,23 +112,13 @@ class ExternalAiAdapter
             return;
         }
 
-        try
+        await Task.Run(async () =>
         {
-            await p.StandardInput.WriteLineAsync(observation);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Failed to send observation: " + e);
-        }
-        try
-        {
-            await p.StandardInput.FlushAsync();
-        }
-        catch (System.Exception _)
-        {
-            // ignore
-        }
+            await p.StandardInput.WriteLineAsync(observation).ConfigureAwait(false);
+            await p.StandardInput.FlushAsync().ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
+
 
     public void Close()
     {
