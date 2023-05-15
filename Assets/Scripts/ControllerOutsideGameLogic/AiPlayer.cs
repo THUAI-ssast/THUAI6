@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -104,21 +105,16 @@ class ExternalAiAdapter
         }
     }
 
-    // Use async to avoid blocking the main thread
-    public async Task SendObservationAsync(string observation)
+    public void SendObservation(string observation)
     {
         if (p.HasExited)
         {
             return;
         }
 
-        await Task.Run(async () =>
-        {
-            await p.StandardInput.WriteLineAsync(observation).ConfigureAwait(false);
-            await p.StandardInput.FlushAsync().ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        p.StandardInput.WriteLine(observation);
+        p.StandardInput.Flush();
     }
-
 
     public void Close()
     {
@@ -151,14 +147,14 @@ public class AiPlayer : MonoBehaviour
     }
 
     // Assign the player that this AI should control
-    public async void Init(int playerId, dynamic config)
+    public void Init(int playerId, dynamic config)
     {
         this.playerId = playerId;
 
         adapter = new ExternalAiAdapter((string)config.command);
 
         // Send start observation
-        await adapter.SendObservationAsync(EncodeStartObservation());
+        adapter.SendObservation(EncodeStartObservation());
     }
 
     private void TryGetAndInterpretAction()
@@ -173,13 +169,39 @@ public class AiPlayer : MonoBehaviour
         MapPresenter.Instance.InterpretAction(playerId, action);
     }
 
-    private async void FixedUpdate()
+    IEnumerator StopCoroutineInSeconds(Coroutine myCoroutine, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        StopCoroutine(myCoroutine);
+    }
+
+    private IEnumerator SendObservationCoroutineCore(string observation)
+    {
+        adapter.SendObservation(observation);
+        yield return null;
+    }
+
+    private IEnumerator SendObservationCoroutine()
+    {
+        yield return new WaitForFixedUpdate();
+        // Here we get the latest observation
+        string observation = EncodeRoutineObservation();
+        Coroutine sendObservationCoroutine = StartCoroutine(SendObservationCoroutineCore(observation));
+        // set timeout for sending observation
+        // In fact, even if a delay of 0.1s will make the game stop again and again. 0.01s will make it slow.
+        // But that doesn't matter when headless as the game will end anyway.
+        // TODO: it's good to make `timeout` a config. But it's not necessary for now and I'm lazy.
+        float timeout = 0.5f;
+        StartCoroutine(StopCoroutineInSeconds(sendObservationCoroutine, timeout));
+    }
+
+    private void FixedUpdate()
     {
         TryGetAndInterpretAction();
         // To preserve ai can see the effect of **its** action, we send observation after the action is interpreted
 
         // Send observation to agent
-        await adapter.SendObservationAsync(EncodeRoutineObservation());
+        StartCoroutine(SendObservationCoroutine());
     }
 
     private string EncodeStartObservation()
