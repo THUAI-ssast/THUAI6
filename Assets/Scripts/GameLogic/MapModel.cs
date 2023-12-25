@@ -37,6 +37,48 @@ public class MapModel : Singleton<MapModel>
         return _processSeed;
     }
 
+    static int[,] CreateMap(int width, int height, int obstaclePercentage)
+    {
+        var random = new System.Random();
+
+        int[,] map = new int[width, height];
+
+        // Set border to obstacles
+        for (int i = 0; i < width; i++)
+        {
+            map[i, 0] = 1;
+            map[i, height - 1] = 1;
+        }
+        for (int j = 0; j < height; j++)
+        {
+            map[0, j] = 1;
+            map[width - 1, j] = 1;
+        }
+
+        // Generate random obstacles in the map
+        for (int i = 1; i < height - 1; i++)
+        {
+            for (int j = 1; j < width - 1; j++)
+            {
+                int randValue = random.Next(0, 100);
+                if (randValue < obstaclePercentage)
+                {
+                    map[j, i] = 1;
+                }
+                else
+                {
+                    map[j, i] = 0;
+                }
+            }
+        }
+
+        // Ensure the generated map is connected by setting the top-left and bottom-right cells as open
+        map[1, 1] = 0;
+        map[width - 2, height - 2] = 0;
+
+        return map;
+    }
+
     private MapModel()
     {
         // initialize random seed
@@ -44,29 +86,7 @@ public class MapModel : Singleton<MapModel>
         System.Random initRandom = new System.Random(initSeed);
 
         // initialize map
-        int[,] initialMap = new int[Width, Height]
-        {
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1},
-            {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-        };
+        int[,] initialMap = CreateMap(Width, Height, 10);
         InitMap(initialMap);
 
         // initialize players(model only)

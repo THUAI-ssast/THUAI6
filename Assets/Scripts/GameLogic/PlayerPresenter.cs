@@ -76,9 +76,6 @@ public class PlayerPresenter : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Preserve the model is consistent with the game object
-        model.position = _rb2D.position;
-        model.rotation = _rb2D.rotation;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
 
@@ -108,7 +105,9 @@ public class PlayerPresenter : MonoBehaviour
         _rb2D.position += directionVector * PlayerModel.MaxVelocity * Time.fixedDeltaTime;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
-        // Model is updated in FixedUpdate
+
+        // Update model
+        model.position = _rb2D.position;
     }
 
     public bool TryRotate(LeftOrRight direction)
@@ -127,7 +126,9 @@ public class PlayerPresenter : MonoBehaviour
         _rb2D.rotation += angle;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
-        // Model is updated in FixedUpdate
+        
+        // Update model
+        model.rotation = _rb2D.rotation;
     }
 
     public bool TryShoot()
@@ -295,6 +296,11 @@ public class PlayerPresenter : MonoBehaviour
 
     private void OnPositionChanged(object sender, Vector2 position)
     {
+        if (gameObject.activeSelf == false)
+        {
+            transform.position = position;
+            gameObject.SetActive(true);
+        }
         _rb2D.position = position;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
@@ -304,6 +310,11 @@ public class PlayerPresenter : MonoBehaviour
 
     private void OnRotationChanged(object sender, float rotation)
     {
+        if (gameObject.activeSelf == false)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, rotation);
+            gameObject.SetActive(true);
+        }
         _rb2D.rotation = rotation;
         _rb2D.velocity = Vector2.zero;
         _rb2D.angularVelocity = 0;
